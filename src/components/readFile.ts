@@ -1,4 +1,9 @@
-export const ReadFile = (event: React.ChangeEvent<HTMLInputElement>, callback: (data: any) => void) => {
+import { TGlobal } from '@/context/globalContext';
+import { THeader } from '@/context/headerContext';
+import { TMainSection } from '@/context/mainSectionContext';
+import { TSidebar } from '@/context/sidebarContext';
+
+export const ReadFile = (event: React.ChangeEvent<HTMLInputElement>, callback: (data: { Global: TGlobal; Header: THeader; Sidebar: TSidebar[]; MainSection: TMainSection[] }) => void) => {
 	const file = event.target.files?.[0];
 	if (!file) {
 		console.log('No file selected', event);
