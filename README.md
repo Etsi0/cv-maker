@@ -10,7 +10,7 @@ A web application for creating professional CVs and resumes.
 
 1. Clone the repository:
 
-```
+```bash
 git clone https://github.com/Etsi0/cv_maker
 cd cv_maker
 ```
@@ -26,7 +26,9 @@ npm install
 1. Build and start the application:
 
 ```bash
-npm run build
+npm run build # you only need to run this once
+
+npm run start
 ```
 
 2. Open your browser and navigate to the link that is displayed in your terminal
