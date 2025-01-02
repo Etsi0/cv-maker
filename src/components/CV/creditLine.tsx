@@ -6,7 +6,7 @@ export function CreditLink() {
 				CV Maker
 			</a>
 			, developed by{' '}
-			<a className='underline' href='https://www.phadnoia.com'>
+			<a className='underline' href='https://www.phadonia.com'>
 				Albin Karlsson
 			</a>
 			.
