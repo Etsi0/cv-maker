@@ -7,10 +7,19 @@ export const sidebarContent = {
 	link: { text: '', href: '' },
 	grid: [''],
 };
-type TSidebarContent =
-	| { type: 'text'; content: string }
-	| { type: 'link'; content: { text: string; href: string } }
-	| { type: 'grid'; content: string[] };
+type TSidebarContent = {
+	content: string;
+	type: 'text';
+} | {
+	content: {
+		text: string;
+		href: string;
+	};
+	type: 'link';
+} | {
+	content: string[];
+	type: 'grid';
+};
 export type TSidebar = {
 	content: TSidebarContent[];
 	title: string;

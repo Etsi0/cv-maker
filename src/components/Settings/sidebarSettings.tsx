@@ -178,15 +178,19 @@ export default function SidebarSettings({ className }: { className?: string }) {
 														key={`sidebar-${i}-content-${j}-grid-${x}`}
 														onChange={(event) => {
 															const temp = structuredClone(SidebarJson);
-															const oldIndex = temp[i].content[j];
-															temp[i].content.splice(j, 1);
-															temp[i].content.splice(parseInt(event.target.value), 0, oldIndex);
-															setSidebarJson(temp);
+															if (temp[i].content[j].type === 'grid') {
+																const oldIndex = temp[i].content[j].content[x];
+																temp[i].content[j].content.splice(x, 1);
+																temp[i].content[j].content.splice(parseInt(event.target.value), 0, oldIndex);
+																setSidebarJson(temp);
+															}
 														}}
 														onClick={() => {
 															const temp = structuredClone(SidebarJson);
-															temp[i].content.splice(j, 1);
-															setSidebarJson(temp);
+															if (temp[i].content[j].type === 'grid') {
+																temp[i].content[j].content.splice(x, 1);
+																setSidebarJson(temp);
+															}
 														}}
 														type='vertical'
 														value={x}
