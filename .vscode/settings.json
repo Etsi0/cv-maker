@@ -1,9 +1,17 @@
 {
-	"files.encoding": "utf8",
-	"files.autoGuessEncoding": false,
-	"prettier.enable": true,
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
-	"editor.tabSize": 4,
+	"diffEditor.ignoreTrimWhitespace": false,
+	"editor.formatOnPaste": false,
+	"editor.formatOnSave": false,
+	"editor.formatOnSaveMode": "modifications",
+	"editor.defaultFormatter": null,
+	"editor.detectIndentation": false,
+	"editor.indentSize": "tabSize",
 	"editor.insertSpaces": false,
-	"editor.detectIndentation": false
+	"editor.tabSize": 4,
+	"files.autoGuessEncoding": false,
+	"files.encoding": "utf8",
+	"typescript.preferences.importModuleSpecifier": "non-relative",
+	"workbench.editorAssociations": {
+		"*.svg": "default"
+	}
 }

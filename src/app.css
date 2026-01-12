@@ -1,137 +1,428 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-	--hue-color: 277.12;
-	--dark-mode: 0;
-	--blackWhite-mode: 0;
-	
-	--isDark: calc(1 - var(--dark-mode));
-	--isBlackWhite: calc(1 - var(--blackWhite-mode));
+@custom-variant dark {
+	@media (prefers-color-scheme: dark) {
+		&:not(.light *) {
+			@slot;
+		}
+	}
+	&:is(.dark *) {
+		@slot;
+	}
+}
+
+@theme {
+	--color-body-50: oklch(var(--body-color-50));
+	--color-body-100: oklch(var(--body-color-100));
+	--color-body-200: oklch(var(--body-color-200));
+	--color-body-300: oklch(var(--body-color-300));
+	--color-body-400: oklch(var(--body-color-400));
+	--color-body-500: oklch(var(--body-color-500));
+
+	--color-primary-50: oklch(var(--primary-color-50));
+	--color-primary-100: oklch(var(--primary-color-100));
+	--color-primary-200: oklch(var(--primary-color-200));
+	--color-primary-300: oklch(var(--primary-color-300));
+	--color-primary-400: oklch(var(--primary-color-400));
+	--color-primary-500: oklch(var(--primary-color-500));
+	--color-primary-600: oklch(var(--primary-color-600));
+	--color-primary-700: oklch(var(--primary-color-700));
+	--color-primary-800: oklch(var(--primary-color-800));
+	--color-primary-900: oklch(var(--primary-color-900));
+	--color-primary-950: oklch(var(--primary-color-950));
+
+	--color-input: oklch(var(--input-color));
+
+	--color-text-100: oklch(var(--text-color-100));
+	--color-text-200: oklch(var(--text-color-200));
+	--color-text-300: oklch(var(--text-color-300));
+	--color-text-400: oklch(var(--text-color-400));
+	--color-text-500: oklch(var(--text-color-500));
+	--color-text-600: oklch(var(--text-color-600));
+	--color-text-700: oklch(var(--text-color-700));
+	--color-text-800: oklch(var(--text-color-800));
+	--color-text-900: oklch(var(--text-color-900));
+
+	--text-custom-md: var(--font-size-1);
+	--text-custom-lg: var(--font-size-2);
+	--text-custom-xl: var(--font-size-3);
+	--text-custom-2xl: var(--font-size-4);
+	--text-custom-3xl: var(--font-size-5);
+	--text-custom-4xl: var(--font-size-6);
+	--text-custom-5xl: var(--font-size-7);
+}
+
+@layer base {
+	:root {
+		interpolate-size: allow-keywords;
+		color-scheme: light;
+
+		--isDarkMode: 0;
+		--hue-color: 277deg;
+		--neutral-chroma: 0.0125;
+
+		--lightness-lightest: 0.97;
+		--lightness-darkest: 0.2;
+		--lightness-diff: calc(var(--lightness-lightest) - var(--lightness-darkest));
+
+		/*==================================================
+			Font
+			startValue + (endValue - startValue) * (((index - 1) / (totalNumber - 1)) ^ 1.5)
+		==================================================*/
+		--font-size-1: .75rem;
+		--font-size-2: .7670103454rem;
+		--font-size-3: .7981125224rem;
+		--font-size-4: .8383883476rem;
+		--font-size-5: .8860827635rem;
+		--font-size-6: .9401814436rem;
+		--font-size-7: 1rem;
+
+		/*==================================================
+			Body colors
+		==================================================*/
+		--body-step: calc(0.05 * (-1 + 2 * var(--isDarkMode)));
+		--body-base: calc(var(--lightness-lightest) - var(--lightness-diff) * var(--isDarkMode));
+
+		--body-lightness-50: calc(var(--body-base) + (var(--body-step) * 0));
+		--body-color-50 : var(--body-lightness-50) var(--neutral-chroma) var(--hue-color);
+
+		--body-lightness-100: calc(var(--body-base) + (var(--body-step) * 1));
+		--body-color-100: var(--body-lightness-100) var(--neutral-chroma) var(--hue-color);
+
+		--body-lightness-200: calc(var(--body-base) + (var(--body-step) * 2));
+		--body-color-200: var(--body-lightness-200) var(--neutral-chroma) var(--hue-color);
+
+		--body-lightness-300: calc(var(--body-base) + (var(--body-step) * 3));
+		--body-color-300: var(--body-lightness-300) var(--neutral-chroma) var(--hue-color);
+
+		--body-lightness-400: calc(var(--body-base) + (var(--body-step) * 4));
+		--body-color-400: var(--body-lightness-400) var(--neutral-chroma) var(--hue-color);
+
+		--body-lightness-500: calc(var(--body-base) + (var(--body-step) * 5));
+		--body-color-500: var(--body-lightness-500) var(--neutral-chroma) var(--hue-color);
+
+		/*==================================================
+			Primary colors
+			calc lightness: (lightestLightness - darkestLightness) * ((i - totalAmountOfColors) / totalAmountOfColors) + darkestLightness
+			calc chroma: (primaryChroma / primaryLightness) * (primaryLightness - abs(currentLightness - primaryLightness))
+		==================================================*/
+		--primary-lightness-50: calc(var(--lightness-diff) * (10 / 10) + var(--lightness-darkest));
+		--primary-chroma-50: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-50) - var(--primary-lightness-500))));
+		--primary-color-50: var(--primary-lightness-50) var(--primary-chroma-50) var(--hue-color);
+
+		--primary-lightness-100: calc(var(--lightness-diff) * (9 / 10) + var(--lightness-darkest));
+		--primary-chroma-100: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-100) - var(--primary-lightness-500))));
+		--primary-color-100: var(--primary-lightness-100) var(--primary-chroma-100) var(--hue-color);
+
+		--primary-lightness-200: calc(var(--lightness-diff) * (8 / 10) + var(--lightness-darkest));
+		--primary-chroma-200: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-200) - var(--primary-lightness-500))));
+		--primary-color-200: var(--primary-lightness-200) var(--primary-chroma-200) var(--hue-color);
+
+		--primary-lightness-300: calc(var(--lightness-diff) * (7 / 10) + var(--lightness-darkest));
+		--primary-chroma-300: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-300) - var(--primary-lightness-500))));
+		--primary-color-300: var(--primary-lightness-300) var(--primary-chroma-300) var(--hue-color);
+
+		--primary-lightness-400: calc(var(--lightness-diff) * (6 / 10) + var(--lightness-darkest));
+		--primary-chroma-400: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-400) - var(--primary-lightness-500))));
+		--primary-color-400: var(--primary-lightness-400) var(--primary-chroma-400) var(--hue-color);
+
+		--primary-lightness-500: calc(var(--lightness-diff) * (5 / 10) + var(--lightness-darkest));
+		--primary-chroma-500: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-500) - var(--primary-lightness-500))));
+		--primary-color-500: var(--primary-lightness-500) var(--primary-chroma-500) var(--hue-color);
+
+		--primary-lightness-600: calc(var(--lightness-diff) * (4 / 10) + var(--lightness-darkest));
+		--primary-chroma-600: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-600) - var(--primary-lightness-500))));
+		--primary-color-600: var(--primary-lightness-600) var(--primary-chroma-600) var(--hue-color);
+
+		--primary-lightness-700: calc(var(--lightness-diff) * (3 / 10) + var(--lightness-darkest));
+		--primary-chroma-700: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-700) - var(--primary-lightness-500))));
+		--primary-color-700: var(--primary-lightness-700) var(--primary-chroma-700) var(--hue-color);
+
+		--primary-lightness-800: calc(var(--lightness-diff) * (2 / 10) + var(--lightness-darkest));
+		--primary-chroma-800: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-800) - var(--primary-lightness-500))));
+		--primary-color-800: var(--primary-lightness-800) var(--primary-chroma-800) var(--hue-color);
+
+		--primary-lightness-900: calc(var(--lightness-diff) * (1 / 10) + var(--lightness-darkest));
+		--primary-chroma-900: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-900) - var(--primary-lightness-500))));
+		--primary-color-900: var(--primary-lightness-900) var(--primary-chroma-900) var(--hue-color);
+
+		--primary-lightness-950: calc(var(--lightness-diff) * (0 / 10) + var(--lightness-darkest));
+		--primary-chroma-950: calc((0.2 / var(--primary-lightness-500)) * (var(--primary-lightness-500) - abs(var(--primary-lightness-950) - var(--primary-lightness-500))));
+		--primary-color-950: var(--primary-lightness-950) var(--primary-chroma-950) var(--hue-color);
+
+		/*==================================================
+			Text colors
+		==================================================*/
+		--text-color-100: abs(0.90 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-200: abs(0.80 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-300: abs(0.70 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-400: abs(0.60 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-500: abs(0.50 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-600: abs(0.40 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-700: abs(0.30 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-800: abs(0.20 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+		--text-color-900: abs(0.10 - 1 * var(--isDarkMode)) var(--neutral-chroma) var(--hue-color);
+	}
 
 	/*==================================================
-		Body color
+		Dark mode switch
 	==================================================*/
-	--body-lightness-50: max(15.36%, 100% * var(--isDark));
-	--body-color-50: var(--body-lightness-50) calc(0 * var(--isBlackWhite)) var(--hue-color);
+	html.dark {
+		--isDarkMode: 1;
+		color-scheme: dark;
+	}
 
-	--body-lightness-100: max(20.77%, 95.92% * var(--isDark));
-	--body-color-100: var(--body-lightness-100) calc(0.0034 * var(--isBlackWhite)) var(--hue-color);
+	*,
+	::before,
+	::after {
+		border-color: transparent;
 
-	--body-lightness-200: max(30.68%, 87.62% * var(--isDark));
-	--body-color-200: var(--body-lightness-200) calc(0.0106 * var(--isBlackWhite)) var(--hue-color);
+		outline-color: transparent;
+		outline-width: 2px;
+		outline-style: solid;
+		outline-offset: 2px;
 
-	--body-lightness-300: max(39.82%, 79.13% * var(--isDark));
-	--body-color-300: var(--body-lightness-300) calc(0.0182 * var(--isBlackWhite)) var(--hue-color);
+		transition-property: none;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 150ms;
+	}
 
-	--body-lightness-400: max(48.47%, 70.4% * var(--isDark));
-	--body-color-400: var(--body-lightness-400) calc(0.0263 * var(--isBlackWhite)) var(--hue-color);
+	*:focus-visible {
+		outline-color: var(--color-primary-500);
+	}
 
-	--body-lightness-500: max(56.74%, 61.37% * var(--isDark));
-	--body-color-500: var(--body-lightness-500) calc(0.0355 * var(--isBlackWhite)) var(--hue-color);
+	::selection {
+		color: var(--color-primary-50);
+		background: var(--color-primary-500);
+	}
+
+	html {
+		scroll-padding-top: 4rem; /* header is 4rem */
+		hanging-punctuation: first last;
+	}
+
+	body,
+	dialog > * {
+		color: var(--color-text-700);
+		font-size: var(--font-size-1);
+		font-weight: 400;
+		line-height: 1.5;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--color-text-800);
+		font-weight: 600;
+		text-wrap: balance;
+	}
+
+	h1 {
+		color: var(--color-text-900);
+		font-size: var(--font-size-7);
+	}
+
+	h2 {
+		font-size: var(--font-size-6);
+	}
+
+	h3 {
+		font-size: var(--font-size-5);
+	}
+
+	h4 {
+		font-size: var(--font-size-4);
+	}
+
+	h5 {
+		font-size: var(--font-size-3);
+	}
+
+	h6 {
+		font-size: var(--font-size-2);
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	a {
+		color: var(--color-primary-600);
+	}
+
+	.dark a {
+		color: var(--color-primary-400);
+	}
+
+	img,
+	picture,
+	svg,
+	video {
+		display: block;
+		max-width: 100%;
+	}
 
 	/*==================================================
-		Border color
+		hamburger icon
 	==================================================*/
-	--border-lightness: max(33.94%, 80.41% * var(--isDark));
-	--border-color: var(--border-lightness) calc(0.0215 * var(--isBlackWhite)) var(--hue-color);
+	.hamburger-button .path1,
+	.hamburger-button .path3 {
+		stroke-dasharray: 60 207;
+	}
+	.hamburger-button .path2 {
+		stroke-dasharray: 60 60;
+	}
+	.hamburger-button[aria-expanded='true'] .path1,
+	.hamburger-button[aria-expanded='true'] .path3 {
+		stroke-dasharray: 90 207;
+		stroke-dashoffset: -134;
+	}
+	.hamburger-button[aria-expanded='true'] .path2 {
+		stroke-dasharray: 1 60;
+		stroke-dashoffset: -30;
+	}
 
 	/*==================================================
-		Input color
+		make section take up the full viewport - header
 	==================================================*/
-	--input-color: oklch(95.66% calc(0.0163 * var(--isBlackWhite)) var(--hue-color));
+	.breakout-wrapper {
+		--gap: 2rem;
+		--full: minmax(var(--gap), 1fr);
+		--breakout: minmax(0, var(--gap));
+		--content: min(100% - var(--gap) * 2, 80rem); /* 80rem = 1280px */
+
+		display: grid;
+		grid-template-columns:
+			[full-start] var(--full)
+			[\2xl-start] var(--breakout)
+			[xl-start] var(--breakout)
+			[lg-start] var(--breakout)
+			[md-start] var(--breakout)
+			[sm-start] var(--breakout)
+			[content-start] var(--content) [content-end]
+			var(--breakout) [sm-end]
+			var(--breakout) [md-end]
+			var(--breakout) [lg-end]
+			var(--breakout) [xl-end]
+			var(--breakout) [\2xl-end]
+			var(--full) [full-end];
+
+		& > * {
+			grid-column: content;
+		}
+
+		& > .col-sm {
+			grid-column: sm;
+		}
+
+		& > .col-md {
+			grid-column: md;
+		}
+
+		& > .col-lg {
+			grid-column: lg;
+		}
+
+		& > .col-xl {
+			grid-column: xl;
+		}
+
+		& > .col-2xl {
+			grid-column: \2xl;
+		}
+
+		& > .col-full {
+			grid-column: full;
+		}
+	}
+
 
 	/*==================================================
-		Link color
+		max height allowed on the header
 	==================================================*/
-	--link: 54.05% 0.2024 var(--hue-color);
+	.heroSection {
+		min-height: calc(min(62.5rem, 100svh) - 4rem);
+	}
 
 	/*==================================================
-		Primary colors
+		make details animated
 	==================================================*/
-	--primary-color-50: 87.33% calc(0.0546 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-100: 80.81% calc(0.0808 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-200: 74.33% calc(0.108 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-300: 67.82% calc(0.1365 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-400: 61.17% calc(0.1673 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-500: 54.05% calc(0.2024 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-600: 45.6% calc(0.1946 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-700: 37.99% calc(0.1796 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-800: 31% calc(0.1581 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-900: 24.43% calc(0.1304 * var(--isBlackWhite)) var(--hue-color);
-	--primary-color-950: 17.84% calc(0.0982 * var(--isBlackWhite)) var(--hue-color);
+	details {
+		overflow: hidden;
+	}
+
+	/*! don't add margin or padding here !*/
+	details::details-content {
+		block-size: 0;
+		transition-property: block-size, content-visibility;
+		transition-duration: 0.3s;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-behavior: allow-discrete;
+	}
+
+	/*! don't add margin or padding here !*/
+	details:open::details-content {
+		block-size: auto;
+	}
+
 
 	/*==================================================
-		Text colors
+		code blocks
 	==================================================*/
-	--text-lightness-300: max(76.62% * var(--dark-mode), 45.12%);
-	--text-color-300: var(--text-lightness-300) calc(0.0309 * var(--isBlackWhite)) var(--hue-color);
-	
-	--text-lightness-400: max(92.42% * var(--dark-mode), 37.93%);
-	--text-color-400: var(--text-lightness-400) calc(0.0249 * var(--isBlackWhite)) var(--hue-color);
-	
-	--text-lightness-500: max(88.06% * var(--dark-mode), 31.32%);
-	--text-color-500: var(--text-lightness-500) calc(0.0193 * var(--isBlackWhite)) var(--hue-color);
-	
-	--text-lightness-600: max(82.81% * var(--dark-mode), 25.31%);
-	--text-color-600: var(--text-lightness-600) calc(0.0142 * var(--isBlackWhite)) var(--hue-color);
-	
-	--text-lightness-700: max(69.43% * var(--dark-mode), 19.97%);
-	--text-color-700: var(--text-lightness-700) calc(0.0096 * var(--isBlackWhite)) var(--hue-color);
-}
+	.shiki {
+		overflow-x: scroll;
+		overflow-y: clip;
 
-*::before,
-*,
-*::after {
-	border-color: oklch(var(--border-color));
+		counter-reset: step;
+		counter-increment: step 0;
 
-	transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-	transition-duration: 150ms;
-}
+		border-radius: 0.5rem;
+		padding: 1rem;
+	}
 
-*:focus-visible {
-	outline: solid 2px oklch(var(--primary-color-500));
-}
+	.shiki .line::before {
+		content: counter(step);
+		counter-increment: step;
+		width: 1rem;
+		margin-right: 1.5rem;
+		display: inline-block;
+		text-align: right;
+		color: rgba(115,138,148,.4)
+	}
 
-body {
-	color: oklch(var(--text-color-300));
-	font-size: 0.75rem;
-	font-weight: 500;
-	line-height: 1.1875rem;
-}
+	.dark .shiki,
+	.dark .shiki span {
+		color: var(--shiki-dark) !important;
+		background-color: var(--shiki-dark-bg) !important;
+		/* Optional, if you also want font styles */
+		font-style: var(--shiki-dark-font-style) !important;
+		font-weight: var(--shiki-dark-font-weight) !important;
+		text-decoration: var(--shiki-dark-text-decoration) !important;
+	}
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	color: oklch(var(--text-color-500));
-	font-weight: 600;
-	text-wrap: balance;
-}
+	@media (prefers-reduced-motion: no-preference) {
+		:has(:target) {
+			scroll-behavior: smooth;
+		}
+	}
 
-h1 {
-	color: oklch(var(--text-color-700));
-}
+	@keyframes cursorBlink {
+		50% {
+			opacity: 0;
+		}
+	}
 
-a {
-	color: oklch(var(--link));
-}
-
-div[data-lastpass-icon-root] {
-	display: none;
-}
-
-@media print {
-	* {
-		text-rendering: geometricPrecision;
-		color-adjust: exact;
-		print-color-adjust: exact;
-		image-rendering: high-quality;
-		shape-rendering: geometricPrecision;
-		background-clip: content-box;
+	@media print {
+		* {
+			text-rendering: geometricPrecision;
+			color-adjust: exact;
+			print-color-adjust: exact;
+			image-rendering: high-quality;
+			shape-rendering: geometricPrecision;
+			background-clip: content-box;
+		}
 	}
 }
