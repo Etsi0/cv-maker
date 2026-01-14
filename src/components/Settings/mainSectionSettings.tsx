@@ -32,7 +32,7 @@ const MainSectionContentItem = memo(function MainSectionContentItem({
 }: {
 	sectionIndex: number;
 	contentIndex: number;
-	item: { title: string; subTitle: string; text: string };
+	item: { id: string; title: string; subTitle: string; text: string };
 	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onDelete: () => void;
 	onTitleChange: (value: string) => void;
@@ -107,7 +107,7 @@ const MainSectionContentItem = memo(function MainSectionContentItem({
 	}, [localText]);
 
 	return (
-		<DeleteWrapper className='grid-cols-2' key={`main-${sectionIndex}-content-${contentIndex}`} onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+		<DeleteWrapper className='grid-cols-2' onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
 			<Label>
 				Title
 				<Input
@@ -167,7 +167,7 @@ const MainSectionItem = memo(function MainSectionItem({
 	onAddContentItem: () => void;
 }) {
 	return (
-		<div key={`main-${sectionIndex}`} className='grid gap-2'>
+		<div className='grid gap-2'>
 			<DeleteWrapper className='grid-cols-2' onChange={onMove} onClick={onDelete} type='vertical' value={sectionIndex}>
 				<Label>
 					Icon
@@ -200,7 +200,7 @@ const MainSectionItem = memo(function MainSectionItem({
 			<div className='relative space-y-4 py-2 pl-8 before:absolute before:left-[calc(2rem/2-1px)] before:top-0 before:h-full before:w-[2px] before:rounded-full before:bg-primary-500'>
 				{section.content.map((item, j) => (
 					<MainSectionContentItem
-						key={`main-${sectionIndex}-content-${j}`}
+						key={item.id}
 						sectionIndex={sectionIndex}
 						contentIndex={j}
 						item={item}
@@ -386,6 +386,7 @@ export default function MainSectionSettings({ className }: { className?: string 
 					content: [
 						...newState[sectionIndex].content,
 						{
+							id: crypto.randomUUID(),
 							title: '',
 							subTitle: '',
 							text: '',
@@ -402,8 +403,10 @@ export default function MainSectionSettings({ className }: { className?: string 
 		setMainSectionJson((prev) => [
 			...prev,
 			{
+				id: crypto.randomUUID(),
 				content: [
 					{
+						id: crypto.randomUUID(),
 						title: '',
 						subTitle: '',
 						text: '',
@@ -452,7 +455,7 @@ export default function MainSectionSettings({ className }: { className?: string 
 	return (
 		<div className={className}>
 			{MainSectionJson.map((section, i) => (
-				<MainSectionItem key={`main-${i}`} sectionIndex={i} section={section} {...sectionHandlers[i]} />
+				<MainSectionItem key={section.id} sectionIndex={i} section={section} {...sectionHandlers[i]} />
 			))}
 			<button className={cn('h-10 w-full rounded-md border bg-body-50 text-primary-500')} onClick={handleAddSection}>
 				ADD SECTION

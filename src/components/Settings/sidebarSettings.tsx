@@ -16,7 +16,7 @@ const SidebarTypeOptions = sidebarType.map((type) => (
 ));
 
 // Input component with local state for performance
-function GridItemInput({ gridIndex, value, onChange }: { gridIndex: number; value: string; onChange: (index: number, value: string) => void }) {
+function GridItemInput({ gridItemId, value, onChange }: { gridItemId: string; value: string; onChange: (id: string, value: string) => void }) {
 	const [localValue, setLocalValue] = useState(value);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const onChangeRef = useRef(onChange);
@@ -34,7 +34,7 @@ function GridItemInput({ gridIndex, value, onChange }: { gridIndex: number; valu
 			clearTimeout(timeoutRef.current);
 		}
 		timeoutRef.current = setTimeout(() => {
-			onChangeRef.current(gridIndex, localValue);
+			onChangeRef.current(gridItemId, localValue);
 		}, INPUT_DEBOUNCE_DELAY);
 
 		return () => {
@@ -42,7 +42,7 @@ function GridItemInput({ gridIndex, value, onChange }: { gridIndex: number; valu
 				clearTimeout(timeoutRef.current);
 			}
 		};
-	}, [localValue, gridIndex]);
+	}, [localValue, gridItemId]);
 
 	return (
 		<Label>
@@ -101,7 +101,7 @@ const SidebarTextItem = memo(function SidebarTextItem({
 	}, [localValue]);
 
 	return (
-		<DeleteWrapper key={`sidebar-${sectionIndex}-content-${contentIndex}`} onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+		<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
 			<Label>
 				Type
 				<select
@@ -196,7 +196,7 @@ const SidebarLinkItem = memo(function SidebarLinkItem({
 	}, [localHref]);
 
 	return (
-		<DeleteWrapper key={`sidebar-${sectionIndex}-content-${contentIndex}`} onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+		<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
 			<Label>
 				Type
 				<select
@@ -247,37 +247,40 @@ const SidebarGridItem = memo(function SidebarGridItem({
 	onTypeChange: (value: (typeof sidebarType)[number]) => void;
 	onGridItemMove: (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onGridItemDelete: (gridIndex: number) => () => void;
-	onGridItemChange: (index: number, value: string) => void;
+	onGridItemChange: (id: string, value: string) => void;
 	onAddGridItem: () => void;
 }) {
 	return (
-		<div key={contentIndex} className='grid grid-cols-2 gap-4'>
-			{item.content.map((gridContent: string, x: number) => (
-				<DeleteWrapper
-					key={`sidebar-${sectionIndex}-content-${contentIndex}-grid-${x}`}
-					onChange={onGridItemMove(x)}
-					onClick={onGridItemDelete(x)}
-					type='vertical'
-					value={x}
-				>
-					<Label>
-						Type
-						<select
-							className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-							onChange={(event) => {
-								const eValue = event.target.value as (typeof sidebarType)[number];
-								if (sidebarType.includes(eValue)) {
-									onTypeChange(eValue);
-								}
-							}}
-							value={item.type}
-						>
-							{SidebarTypeOptions}
-						</select>
-					</Label>
-					<GridItemInput gridIndex={x} value={gridContent} onChange={onGridItemChange} />
-				</DeleteWrapper>
-			))}
+		<div className='grid grid-cols-2 gap-4'>
+			{item.content.map((gridItem, x: number) => {
+				const gridItemIndex = item.content.findIndex((item) => item.id === gridItem.id);
+				return (
+					<DeleteWrapper
+						key={gridItem.id}
+						onChange={onGridItemMove(gridItemIndex)}
+						onClick={onGridItemDelete(gridItemIndex)}
+						type='vertical'
+						value={gridItemIndex}
+					>
+						<Label>
+							Type
+							<select
+								className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+								onChange={(event) => {
+									const eValue = event.target.value as (typeof sidebarType)[number];
+									if (sidebarType.includes(eValue)) {
+										onTypeChange(eValue);
+									}
+								}}
+								value={item.type}
+							>
+								{SidebarTypeOptions}
+							</select>
+						</Label>
+						<GridItemInput gridItemId={gridItem.id} value={gridItem.value} onChange={onGridItemChange} />
+					</DeleteWrapper>
+				);
+			})}
 			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddGridItem}>
 				ADD GRID ITEM
 			</button>
@@ -317,7 +320,7 @@ const SidebarSection = memo(function SidebarSection({
 	onLinkHrefChange: (contentIndex: number) => (value: string) => void;
 	onGridItemMove: (contentIndex: number) => (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onGridItemDelete: (contentIndex: number) => (gridIndex: number) => () => void;
-	onGridItemChange: (contentIndex: number) => (gridIndex: number, value: string) => void;
+	onGridItemChange: (contentIndex: number) => (gridItemId: string, value: string) => void;
 	onAddContentItem: () => void;
 	onAddGridItem: (contentIndex: number) => () => void;
 }) {
@@ -349,7 +352,7 @@ const SidebarSection = memo(function SidebarSection({
 	}, [localTitle]);
 
 	return (
-		<div key={`sidebar-${sectionIndex}`} className='grid gap-2'>
+		<div className='grid gap-2'>
 			<DeleteWrapper onChange={onSectionMove} onClick={onSectionDelete} type='horizontal' value={sectionIndex}>
 				<Label>
 					Title
@@ -366,7 +369,7 @@ const SidebarSection = memo(function SidebarSection({
 						case 'text':
 							return (
 								<SidebarTextItem
-									key={`sidebar-${sectionIndex}-content-${j}`}
+									key={item.id}
 									sectionIndex={sectionIndex}
 									contentIndex={j}
 									item={item}
@@ -379,7 +382,7 @@ const SidebarSection = memo(function SidebarSection({
 						case 'link':
 							return (
 								<SidebarLinkItem
-									key={`sidebar-${sectionIndex}-content-${j}`}
+									key={item.id}
 									sectionIndex={sectionIndex}
 									contentIndex={j}
 									item={item}
@@ -393,7 +396,7 @@ const SidebarSection = memo(function SidebarSection({
 						case 'grid':
 							return (
 								<SidebarGridItem
-									key={`sidebar-${sectionIndex}-content-${j}`}
+									key={item.id}
 									sectionIndex={sectionIndex}
 									contentIndex={j}
 									item={item}
@@ -497,7 +500,10 @@ export default function SidebarSettings({ className }: { className?: string }) {
 				const newState = prev.map((section, i) => {
 					if (i === sectionIndex) {
 						const newContent = [...section.content];
+						const existingItem = newContent[contentIndex];
+						const existingId = existingItem.id || crypto.randomUUID();
 						newContent[contentIndex] = {
+							id: existingId,
 							type: value,
 							content: sidebarContent[value],
 						} as TSidebarContent;
@@ -619,14 +625,15 @@ export default function SidebarSettings({ className }: { className?: string }) {
 	);
 
 	const handleGridItemChange = useCallback(
-		(sectionIndex: number) => (contentIndex: number) => (gridIndex: number, value: string) => {
+		(sectionIndex: number) => (contentIndex: number) => (gridItemId: string, value: string) => {
 			setSidebarJson((prev) => {
 				const newState = prev.map((section, i) => {
 					if (i === sectionIndex) {
 						const newContent = [...section.content];
 						if (newContent[contentIndex].type === 'grid') {
-							const newGrid = [...newContent[contentIndex].content];
-							newGrid[gridIndex] = value;
+							const newGrid = newContent[contentIndex].content.map((item) =>
+								item.id === gridItemId ? { ...item, value } : item
+							);
 							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
 						}
 						return { ...section, content: newContent };
@@ -645,7 +652,7 @@ export default function SidebarSettings({ className }: { className?: string }) {
 				const newState = [...prev];
 				newState[sectionIndex] = {
 					...newState[sectionIndex],
-					content: [...newState[sectionIndex].content, { content: '', type: 'text' }],
+					content: [...newState[sectionIndex].content, { id: crypto.randomUUID(), content: '', type: 'text' }],
 				};
 				return newState;
 			});
@@ -660,7 +667,7 @@ export default function SidebarSettings({ className }: { className?: string }) {
 					if (i === sectionIndex) {
 						const newContent = [...section.content];
 						if (newContent[contentIndex].type === 'grid') {
-							const newGrid = [...newContent[contentIndex].content, ''];
+							const newGrid = [...newContent[contentIndex].content, { id: crypto.randomUUID(), value: '' }];
 							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
 						}
 						return { ...section, content: newContent };
@@ -674,7 +681,7 @@ export default function SidebarSettings({ className }: { className?: string }) {
 	);
 
 	const handleAddSection = useCallback(() => {
-		setSidebarJson((prev) => [...prev, { content: [{ content: '', type: 'text' }], title: '' }]);
+		setSidebarJson((prev) => [...prev, { id: crypto.randomUUID(), content: [{ id: crypto.randomUUID(), content: '', type: 'text' }], title: '' }]);
 	}, [setSidebarJson]);
 
 	// Memoize section handlers
@@ -721,7 +728,7 @@ export default function SidebarSettings({ className }: { className?: string }) {
 			{SidebarJson.map((section, i) => {
 				const handlers = sectionHandlers[i];
 				if (!handlers) return null;
-				return <SidebarSection key={`sidebar-${i}`} sectionIndex={i} section={section} {...handlers} />;
+				return <SidebarSection key={section.id} sectionIndex={i} section={section} {...handlers} />;
 			})}
 			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={handleAddSection}>
 				ADD SECTION

@@ -15,6 +15,7 @@ import { TSidebar, useSidebarJsonContext } from '@/context/sidebarContext';
 import { TMainSection, useMainSectionJsonContext } from '@/context/mainSectionContext';
 import { ReadFile } from '@/components/readFile';
 import { Label } from '@/components/ui/label';
+import { migrateHeader, migrateSidebar, migrateMainSection } from '@/lib/migrateData';
 
 const Tabs = ['Global', 'Header', 'Sidebar', 'MainSection'];
 type TTab = typeof Tabs[number];
@@ -57,9 +58,9 @@ export default function Settings() {
 
 	function setSettings(Json: TSettings) {
 		setGlobalJson(Json.Global);
-		setHeaderJson(Json.Header);
-		setSidebarJson(Json.Sidebar);
-		setMainSectionJson(Json.MainSection);
+		setHeaderJson(migrateHeader(Json.Header));
+		setSidebarJson(migrateSidebar(Json.Sidebar));
+		setMainSectionJson(migrateMainSection(Json.MainSection));
 	}
 
 	function formattedDate() {

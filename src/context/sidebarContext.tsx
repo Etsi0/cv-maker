@@ -5,22 +5,30 @@ export const sidebarType = ['text', 'link', 'grid'] as const;
 export const sidebarContent = {
 	text: '',
 	link: { text: '', href: '' },
-	grid: [''],
+	grid: [{ id: crypto.randomUUID(), value: '' }],
+};
+export type TGridItem = {
+	id: string;
+	value: string;
 };
 export type TSidebarContent = {
+	id: string;
 	content: string;
 	type: 'text';
 } | {
+	id: string;
 	content: {
 		text: string;
 		href: string;
 	};
 	type: 'link';
 } | {
-	content: string[];
+	id: string;
+	content: TGridItem[];
 	type: 'grid';
 };
 export type TSidebar = {
+	id: string;
 	content: TSidebarContent[];
 	title: string;
 };
@@ -30,8 +38,10 @@ type TSidebarState = {
 };
 
 const startData: TSidebar = {
+	id: crypto.randomUUID(),
 	content: [
 		{
+			id: crypto.randomUUID(),
 			content: '',
 			type: 'text',
 		},

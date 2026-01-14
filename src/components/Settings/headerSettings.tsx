@@ -61,7 +61,7 @@ const HeaderContentItem = memo(function HeaderContentItem({
 	onTextChange,
 }: {
 	index: number;
-	item: { icon: keyof typeof SvgList | ''; text: string };
+	item: { id: string; icon: keyof typeof SvgList | ''; text: string };
 	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onDelete: () => void;
 	onIconChange: (value: keyof typeof SvgList | '') => void;
@@ -95,7 +95,7 @@ const HeaderContentItem = memo(function HeaderContentItem({
 	}, [localText]);
 
 	return (
-		<DeleteWrapper key={`header-${index}`} onChange={onMove} onClick={onDelete} type='horizontal' value={index}>
+		<DeleteWrapper onChange={onMove} onClick={onDelete} type='horizontal' value={index}>
 			<Label>
 				Icon
 				<IconSelect value={item.icon} onChange={(event) => onIconChange(event.target.value as keyof typeof SvgList | '')} />
@@ -195,7 +195,7 @@ export default function HeaderSettings({ className }: { className?: string }) {
 	const handleAddContent = useCallback(() => {
 		setHeaderJson((prev) => ({
 			...prev,
-			content: [...prev.content, { icon: '', text: '' }],
+			content: [...prev.content, { id: crypto.randomUUID(), icon: '', text: '' }],
 		}));
 	}, [setHeaderJson]);
 
@@ -234,7 +234,7 @@ export default function HeaderSettings({ className }: { className?: string }) {
 				if (!handlers) return null;
 				return (
 					<HeaderContentItem
-						key={`header-${i}`}
+						key={item.id}
 						index={i}
 						item={item}
 						{...handlers}

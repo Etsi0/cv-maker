@@ -4,7 +4,9 @@ import { SvgList } from '@/components/SVGs';
 
 export const mainTypes = ['default', 'card'] as const;
 export type TMainSection = {
+	id: string;
 	content: {
+		id: string;
 		subTitle: string;
 		text: string;
 		title: string;
@@ -20,8 +22,10 @@ type TMainSectionState = {
 };
 
 const startData: TMainSection = {
+	id: crypto.randomUUID(),
 	content: [
 		{
+			id: crypto.randomUUID(),
 			subTitle: '',
 			text: '',
 			title: '',

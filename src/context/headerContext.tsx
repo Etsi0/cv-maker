@@ -4,6 +4,7 @@ import { SvgList } from '@/components/SVGs';
 
 export type THeader = {
 	content: {
+		id: string;
 		icon: keyof typeof SvgList | '';
 		text: string;
 	}[];
@@ -18,6 +19,7 @@ type THeaderState = {
 const startData: THeader = {
 	content: [
 		{
+			id: crypto.randomUUID(),
 			icon: '',
 			text: '',
 		},

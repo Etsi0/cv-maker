@@ -47,8 +47,8 @@ const HeaderSection = memo(function HeaderSection() {
 			{HeaderJson.img && <Image className='mb-2 aspect-square rounded-lg object-cover' src={HeaderJson.img} alt='Your profile picture' width={80} height={80} />}
 			<h1 className='text-3xl uppercase'>{HeaderJson.name || 'Undefined'}</h1>
 			<ul className='flex flex-wrap gap-3'>
-				{HeaderJson.content.map((item, i) => (
-					<li key={`header-${i}`} className='flex items-center gap-1'>
+				{HeaderJson.content.map((item) => (
+					<li key={item.id} className='flex items-center gap-1'>
 						<StrToImg str={item.icon} className='mx-0' />
 						{item.text}
 					</li>
@@ -63,27 +63,26 @@ const SidebarSection = memo(function SidebarSection() {
 
 	return (
 		<div className='grid shrink grow-0 basis-auto gap-3 self-start text-center'>
-			{SidebarJson.map((item, i) => (
-				<div key={`sidebar-${i}`}>
+			{SidebarJson.map((item) => (
+				<div key={item.id}>
 					<h2 className='text-md uppercase'>{item.title}</h2>
 					<div className='grid justify-center'>
-						{item.content.map((contentItem, j) => {
-							const key = `sidebar-${i}-${j}`;
+						{item.content.map((contentItem) => {
 							switch (contentItem.type) {
 								case 'text':
-									return <p key={key}>{contentItem.content}</p>;
+									return <p key={contentItem.id}>{contentItem.content}</p>;
 								case 'link':
 									return (
-										<a key={key} className='underline' href={contentItem.content.href}>
+										<a key={contentItem.id} className='underline' href={contentItem.content.href}>
 											{contentItem.content.text}
 										</a>
 									);
 								case 'grid':
 									return (
-										<ul key={key} className={cn('relative grid grid-cols-2 gap-x-3 before:left-1/2 before:bg-primary-50', pseudoClasses)}>
-											{contentItem.content.map((grid, x) => (
-												<li key={`${key}-${x}`} className='odd:justify-self-end even:justify-self-start'>
-													{grid}
+										<ul key={contentItem.id} className={cn('relative grid grid-cols-2 gap-x-3 before:left-1/2 before:bg-primary-50', pseudoClasses)}>
+											{contentItem.content.map((gridItem) => (
+												<li key={gridItem.id} className='odd:justify-self-end even:justify-self-start'>
+													{gridItem.value}
 												</li>
 											))}
 										</ul>
@@ -157,15 +156,14 @@ const MainSectionContent = memo(function MainSectionContent() {
 
 	return (
 		<div className='grid shrink grow basis-0 gap-4 self-start'>
-			{MainSectionJson.map((category, i) => (
-				<MainSectionWrapper key={`main-${i}`} data={category}>
+			{MainSectionJson.map((category) => (
+				<MainSectionWrapper key={category.id} data={category}>
 					{!category.hidden ? (
-						category.content.map((item, j) => {
-							const key = `main-${i}-${j}`;
+						category.content.map((item) => {
 							if (category.type === 'default') {
-								return <MainDefault key={key} {...item} />;
+								return <MainDefault key={item.id} {...item} />;
 							} else if (category.type === 'card') {
-								return <MainCard key={key} {...item} />;
+								return <MainCard key={item.id} {...item} />;
 							}
 						})
 					) : (
