@@ -1,14 +1,14 @@
 import { LabelHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-type TDoneLabel = {
+type TLabel = {
 	className?: string;
 	children?: React.ReactNode;
 } & LabelHTMLAttributes<HTMLLabelElement>;
-export const DoneLabel = (prop: TDoneLabel) => {
+export const Label = (prop: TLabel) => {
 	const { children, className, ...props } = prop;
 	return (
-		<label className={cn('peer-disabled:opacity-7 grid gap-[.375rem] text-sm font-medium leading-none peer-disabled:cursor-not-allowed', className)} {...props}>
+		<label className={cn('grid gap-1.5 text-sm font-medium', className)} {...props}>
 			{children}
 		</label>
 	);

@@ -1,11 +1,17 @@
 import { MouseEvent } from 'react';
-import { DoneLabel } from '@/components/ui/elements/label';
+import { Label } from '@/components/ui/label';
 import { Delete } from '@/components/SVGs';
 import { cn } from '@/lib/utils';
 
-export function DeleteButton({ onClick, type = 'horizontal' }: { onClick: (event: MouseEvent<HTMLButtonElement>) => void; type?: 'horizontal' | 'vertical' }) {
+type TDeleteButton = {
+	onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+	type?: 'horizontal' | 'vertical'
+	className?: string;
+}
+
+export function DeleteButton({ onClick, type = 'horizontal', className }: TDeleteButton) {
 	return (
-		<DoneLabel>
+		<Label className={className}>
 			Delete
 			<button
 				className={cn(
@@ -14,8 +20,8 @@ export function DeleteButton({ onClick, type = 'horizontal' }: { onClick: (event
 				)}
 				onClick={onClick}
 			>
-				<Delete className={cn('text-input transition-colors group-hover:text-red-500 group-focus-visible:text-red-500', type === 'vertical' && 'mx-auto h-full')} />
+				<Delete className={cn('text-primary-50 transition-colors group-hover:text-red-500 group-focus-visible:text-red-500', type === 'vertical' && 'mx-auto h-full')} />
 			</button>
-		</DoneLabel>
+		</Label>
 	);
 }

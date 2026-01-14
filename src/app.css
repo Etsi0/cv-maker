@@ -257,12 +257,9 @@
 		color: var(--color-primary-400);
 	}
 
-	img,
-	picture,
-	svg,
-	video {
-		display: block;
-		max-width: 100%;
+	.align-center {
+		vertical-align: middle;
+		margin-block-start: calc(1ex - 1cap);
 	}
 
 	/*==================================================

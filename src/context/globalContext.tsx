@@ -1,5 +1,5 @@
 'use client';
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 
 export type TGlobal = {
 	color: number;
@@ -22,13 +22,16 @@ export const GlobalJsonContext = createContext<TGlobalState | null>(null);
 export default function GlobalContext({ children }: { children: ReactNode }) {
 	const [GlobalJson, setGlobalJson] = useState<TGlobal>(startData);
 
+	const value = useMemo(
+		() => ({
+			GlobalJson,
+			setGlobalJson,
+		}),
+		[GlobalJson],
+	);
+
 	return (
-		<GlobalJsonContext.Provider
-			value={{
-				GlobalJson,
-				setGlobalJson,
-			}}
-		>
+		<GlobalJsonContext.Provider value={value}>
 			{children}
 		</GlobalJsonContext.Provider>
 	);

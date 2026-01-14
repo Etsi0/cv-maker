@@ -1,5 +1,5 @@
 'use client';
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 import { SvgList } from '@/components/SVGs';
 
 export type THeader = {
@@ -31,13 +31,16 @@ export const HeaderJsonContext = createContext<THeaderState | null>(null);
 export default function HeaderContext({ children }: { children: ReactNode }) {
 	const [HeaderJson, setHeaderJson] = useState<THeader>(startData);
 
+	const value = useMemo(
+		() => ({
+			HeaderJson,
+			setHeaderJson,
+		}),
+		[HeaderJson],
+	);
+
 	return (
-		<HeaderJsonContext.Provider
-			value={{
-				HeaderJson,
-				setHeaderJson,
-			}}
-		>
+		<HeaderJsonContext.Provider value={value}>
 			{children}
 		</HeaderJsonContext.Provider>
 	);

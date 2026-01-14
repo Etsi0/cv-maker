@@ -1,6 +1,6 @@
 import { SelectHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
-import { Option } from '@/components/ui/elements/option';
+import { Option } from '@/components/ui/option';
 import { SvgList } from './SVGs';
 
 type TIconSelect = {

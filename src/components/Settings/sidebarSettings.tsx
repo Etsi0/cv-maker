@@ -1,279 +1,731 @@
-import { cn } from '@/lib/utils';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cn, INPUT_DEBOUNCE_DELAY } from '@/lib/utils';
 
-import { sidebarContent, sidebarType, useSidebarJsonContext } from '@/context/sidebarContext';
+import { sidebarContent, sidebarType, TSidebar, TSidebarContent, useSidebarJsonContext } from '@/context/sidebarContext';
 
-import { Input } from '@/components/ui/shadcn/input';
-import { DoneLabel } from '@/components/ui/elements/label';
-import { DeleteWrapper } from '@/components/deleteWrapper';
-import { Option } from '@/components/ui/elements/option';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { DeleteWrapper } from '@/components/ui/deleteWrapper';
+import { Option } from '@/components/ui/option';
+
+// Memoized option list to avoid recreating on every render
+const SidebarTypeOptions = sidebarType.map((type) => (
+	<Option key={type} value={type}>
+		{String(type).charAt(0).toUpperCase() + String(type).slice(1)}
+	</Option>
+));
+
+// Input component with local state for performance
+function GridItemInput({ gridIndex, value, onChange }: { gridIndex: number; value: string; onChange: (index: number, value: string) => void }) {
+	const [localValue, setLocalValue] = useState(value);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const onChangeRef = useRef(onChange);
+
+	useEffect(() => {
+		onChangeRef.current = onChange;
+	}, [onChange]);
+
+	useEffect(() => {
+		setLocalValue(value);
+	}, [value]);
+
+	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			onChangeRef.current(gridIndex, localValue);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [localValue, gridIndex]);
+
+	return (
+		<Label>
+			Text
+			<Input
+				value={localValue}
+				onChange={(event) => setLocalValue(event.target.value)}
+			/>
+		</Label>
+	);
+}
+
+// Extracted component for text content type
+const SidebarTextItem = memo(function SidebarTextItem({
+	sectionIndex,
+	contentIndex,
+	item,
+	onMove,
+	onDelete,
+	onTypeChange,
+	onContentChange,
+}: {
+	sectionIndex: number;
+	contentIndex: number;
+	item: Extract<TSidebarContent, { type: 'text' }>;
+	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onDelete: () => void;
+	onTypeChange: (value: (typeof sidebarType)[number]) => void;
+	onContentChange: (value: string) => void;
+}) {
+	const [localValue, setLocalValue] = useState(item.content);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const onContentChangeRef = useRef(onContentChange);
+
+	useEffect(() => {
+		onContentChangeRef.current = onContentChange;
+	}, [onContentChange]);
+
+	useEffect(() => {
+		setLocalValue(item.content);
+	}, [item.content]);
+
+	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			onContentChangeRef.current(localValue);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [localValue]);
+
+	return (
+		<DeleteWrapper key={`sidebar-${sectionIndex}-content-${contentIndex}`} onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+			<Label>
+				Type
+				<select
+					className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+					onChange={(event) => {
+						const eValue = event.target.value as (typeof sidebarType)[number];
+						if (sidebarType.includes(eValue)) {
+							onTypeChange(eValue);
+						}
+					}}
+					value={item.type}
+				>
+					{SidebarTypeOptions}
+				</select>
+			</Label>
+			<Label>
+				Text
+				<Input
+					value={localValue}
+					onChange={(event) => setLocalValue(event.target.value)}
+				/>
+			</Label>
+		</DeleteWrapper>
+	);
+});
+
+// Extracted component for link content type
+const SidebarLinkItem = memo(function SidebarLinkItem({
+	sectionIndex,
+	contentIndex,
+	item,
+	onMove,
+	onDelete,
+	onTypeChange,
+	onTextChange,
+	onHrefChange,
+}: {
+	sectionIndex: number;
+	contentIndex: number;
+	item: Extract<TSidebarContent, { type: 'link' }>;
+	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onDelete: () => void;
+	onTypeChange: (value: (typeof sidebarType)[number]) => void;
+	onTextChange: (value: string) => void;
+	onHrefChange: (value: string) => void;
+}) {
+	const [localText, setLocalText] = useState(item.content.text);
+	const [localHref, setLocalHref] = useState(item.content.href);
+	const textTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const hrefTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const onTextChangeRef = useRef(onTextChange);
+	const onHrefChangeRef = useRef(onHrefChange);
+
+	useEffect(() => {
+		onTextChangeRef.current = onTextChange;
+		onHrefChangeRef.current = onHrefChange;
+	}, [onTextChange, onHrefChange]);
+
+	useEffect(() => {
+		setLocalText(item.content.text);
+		setLocalHref(item.content.href);
+	}, [item.content.text, item.content.href]);
+
+	useEffect(() => {
+		if (textTimeoutRef.current) {
+			clearTimeout(textTimeoutRef.current);
+		}
+		textTimeoutRef.current = setTimeout(() => {
+			onTextChangeRef.current(localText);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (textTimeoutRef.current) {
+				clearTimeout(textTimeoutRef.current);
+			}
+		};
+	}, [localText]);
+
+	useEffect(() => {
+		if (hrefTimeoutRef.current) {
+			clearTimeout(hrefTimeoutRef.current);
+		}
+		hrefTimeoutRef.current = setTimeout(() => {
+			onHrefChangeRef.current(localHref);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (hrefTimeoutRef.current) {
+				clearTimeout(hrefTimeoutRef.current);
+			}
+		};
+	}, [localHref]);
+
+	return (
+		<DeleteWrapper key={`sidebar-${sectionIndex}-content-${contentIndex}`} onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+			<Label>
+				Type
+				<select
+					className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+					onChange={(event) => {
+						const eValue = event.target.value as (typeof sidebarType)[number];
+						if (sidebarType.includes(eValue)) {
+							onTypeChange(eValue);
+						}
+					}}
+					value={item.type}
+				>
+					{SidebarTypeOptions}
+				</select>
+			</Label>
+			<Label>
+				Label
+				<Input
+					value={localText}
+					onChange={(event) => setLocalText(event.target.value)}
+				/>
+			</Label>
+			<Label>
+				Link
+				<Input
+					value={localHref}
+					onChange={(event) => setLocalHref(event.target.value)}
+				/>
+			</Label>
+		</DeleteWrapper>
+	);
+});
+
+// Extracted component for grid content type
+const SidebarGridItem = memo(function SidebarGridItem({
+	sectionIndex,
+	contentIndex,
+	item,
+	onTypeChange,
+	onGridItemMove,
+	onGridItemDelete,
+	onGridItemChange,
+	onAddGridItem,
+}: {
+	sectionIndex: number;
+	contentIndex: number;
+	item: Extract<TSidebarContent, { type: 'grid' }>;
+	onTypeChange: (value: (typeof sidebarType)[number]) => void;
+	onGridItemMove: (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onGridItemDelete: (gridIndex: number) => () => void;
+	onGridItemChange: (index: number, value: string) => void;
+	onAddGridItem: () => void;
+}) {
+	return (
+		<div key={contentIndex} className='grid grid-cols-2 gap-4'>
+			{item.content.map((gridContent: string, x: number) => (
+				<DeleteWrapper
+					key={`sidebar-${sectionIndex}-content-${contentIndex}-grid-${x}`}
+					onChange={onGridItemMove(x)}
+					onClick={onGridItemDelete(x)}
+					type='vertical'
+					value={x}
+				>
+					<Label>
+						Type
+						<select
+							className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+							onChange={(event) => {
+								const eValue = event.target.value as (typeof sidebarType)[number];
+								if (sidebarType.includes(eValue)) {
+									onTypeChange(eValue);
+								}
+							}}
+							value={item.type}
+						>
+							{SidebarTypeOptions}
+						</select>
+					</Label>
+					<GridItemInput gridIndex={x} value={gridContent} onChange={onGridItemChange} />
+				</DeleteWrapper>
+			))}
+			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddGridItem}>
+				ADD GRID ITEM
+			</button>
+		</div>
+	);
+});
+
+// Extracted component for sidebar section
+const SidebarSection = memo(function SidebarSection({
+	sectionIndex,
+	section,
+	onSectionTitleChange,
+	onSectionMove,
+	onSectionDelete,
+	onContentMove,
+	onContentDelete,
+	onContentTypeChange,
+	onTextContentChange,
+	onLinkTextChange,
+	onLinkHrefChange,
+	onGridItemMove,
+	onGridItemDelete,
+	onGridItemChange,
+	onAddContentItem,
+	onAddGridItem,
+}: {
+	sectionIndex: number;
+	section: TSidebar;
+	onSectionTitleChange: (value: string) => void;
+	onSectionMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onSectionDelete: () => void;
+	onContentMove: (contentIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onContentDelete: (contentIndex: number) => () => void;
+	onContentTypeChange: (contentIndex: number) => (value: (typeof sidebarType)[number]) => void;
+	onTextContentChange: (contentIndex: number) => (value: string) => void;
+	onLinkTextChange: (contentIndex: number) => (value: string) => void;
+	onLinkHrefChange: (contentIndex: number) => (value: string) => void;
+	onGridItemMove: (contentIndex: number) => (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onGridItemDelete: (contentIndex: number) => (gridIndex: number) => () => void;
+	onGridItemChange: (contentIndex: number) => (gridIndex: number, value: string) => void;
+	onAddContentItem: () => void;
+	onAddGridItem: (contentIndex: number) => () => void;
+}) {
+	const [localTitle, setLocalTitle] = useState(section.title);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const onSectionTitleChangeRef = useRef(onSectionTitleChange);
+
+	useEffect(() => {
+		onSectionTitleChangeRef.current = onSectionTitleChange;
+	}, [onSectionTitleChange]);
+
+	useEffect(() => {
+		setLocalTitle(section.title);
+	}, [section.title]);
+
+	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			onSectionTitleChangeRef.current(localTitle);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [localTitle]);
+
+	return (
+		<div key={`sidebar-${sectionIndex}`} className='grid gap-2'>
+			<DeleteWrapper onChange={onSectionMove} onClick={onSectionDelete} type='horizontal' value={sectionIndex}>
+				<Label>
+					Title
+					<Input
+						className='text-center text-base font-semibold'
+						value={localTitle}
+						onChange={(event) => setLocalTitle(event.target.value)}
+					/>
+				</Label>
+			</DeleteWrapper>
+			<div className='relative space-y-4 py-2 pl-8 before:absolute before:left-[calc(2rem/2-1px)] before:top-0 before:h-full before:w-[2px] before:rounded-full before:bg-primary-500'>
+				{section.content.map((item, j) => {
+					switch (item.type) {
+						case 'text':
+							return (
+								<SidebarTextItem
+									key={`sidebar-${sectionIndex}-content-${j}`}
+									sectionIndex={sectionIndex}
+									contentIndex={j}
+									item={item}
+									onMove={onContentMove(j)}
+									onDelete={onContentDelete(j)}
+									onTypeChange={onContentTypeChange(j)}
+									onContentChange={onTextContentChange(j)}
+								/>
+							);
+						case 'link':
+							return (
+								<SidebarLinkItem
+									key={`sidebar-${sectionIndex}-content-${j}`}
+									sectionIndex={sectionIndex}
+									contentIndex={j}
+									item={item}
+									onMove={onContentMove(j)}
+									onDelete={onContentDelete(j)}
+									onTypeChange={onContentTypeChange(j)}
+									onTextChange={onLinkTextChange(j)}
+									onHrefChange={onLinkHrefChange(j)}
+								/>
+							);
+						case 'grid':
+							return (
+								<SidebarGridItem
+									key={`sidebar-${sectionIndex}-content-${j}`}
+									sectionIndex={sectionIndex}
+									contentIndex={j}
+									item={item}
+									onTypeChange={onContentTypeChange(j)}
+									onGridItemMove={onGridItemMove(j)}
+									onGridItemDelete={onGridItemDelete(j)}
+									onGridItemChange={onGridItemChange(j)}
+									onAddGridItem={onAddGridItem(j)}
+								/>
+							);
+						default:
+							return null;
+					}
+				})}
+				<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddContentItem}>
+					ADD SECTION ITEM
+				</button>
+			</div>
+		</div>
+	);
+});
 
 export default function SidebarSettings({ className }: { className?: string }) {
 	const { SidebarJson, setSidebarJson } = useSidebarJsonContext();
 
+	// Memoized handlers using useCallback
+	const handleSectionTitleChange = useCallback(
+		(sectionIndex: number) => (value: string) => {
+			setSidebarJson((prev) => {
+				const newState = [...prev];
+				newState[sectionIndex] = { ...newState[sectionIndex], title: value };
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleSectionMove = useCallback(
+		(sectionIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+			setSidebarJson((prev) => {
+				const newState = [...prev];
+				const oldIndex = newState[sectionIndex];
+				newState.splice(sectionIndex, 1);
+				newState.splice(parseInt(event.target.value), 0, oldIndex);
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleSectionDelete = useCallback(
+		(sectionIndex: number) => () => {
+			setSidebarJson((prev) => {
+				const newState = [...prev];
+				newState.splice(sectionIndex, 1);
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleContentMove = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						const oldItem = newContent[contentIndex];
+						newContent.splice(contentIndex, 1);
+						newContent.splice(parseInt(event.target.value), 0, oldItem);
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleContentDelete = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => () => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						newContent.splice(contentIndex, 1);
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleContentTypeChange = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (value: (typeof sidebarType)[number]) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						newContent[contentIndex] = {
+							type: value,
+							content: sidebarContent[value],
+						} as TSidebarContent;
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleTextContentChange = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (value: string) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'text') {
+							newContent[contentIndex] = { ...newContent[contentIndex], content: value };
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleLinkTextChange = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (value: string) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'link') {
+							newContent[contentIndex] = {
+								...newContent[contentIndex],
+								content: { ...newContent[contentIndex].content, text: value },
+							};
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleLinkHrefChange = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (value: string) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'link') {
+							newContent[contentIndex] = {
+								...newContent[contentIndex],
+								content: { ...newContent[contentIndex].content, href: value },
+							};
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleGridItemMove = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'grid') {
+							const newGrid = [...newContent[contentIndex].content];
+							const oldItem = newGrid[gridIndex];
+							newGrid.splice(gridIndex, 1);
+							newGrid.splice(parseInt(event.target.value), 0, oldItem);
+							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleGridItemDelete = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (gridIndex: number) => () => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'grid') {
+							const newGrid = [...newContent[contentIndex].content];
+							newGrid.splice(gridIndex, 1);
+							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleGridItemChange = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => (gridIndex: number, value: string) => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'grid') {
+							const newGrid = [...newContent[contentIndex].content];
+							newGrid[gridIndex] = value;
+							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleAddContentItem = useCallback(
+		(sectionIndex: number) => () => {
+			setSidebarJson((prev) => {
+				const newState = [...prev];
+				newState[sectionIndex] = {
+					...newState[sectionIndex],
+					content: [...newState[sectionIndex].content, { content: '', type: 'text' }],
+				};
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleAddGridItem = useCallback(
+		(sectionIndex: number) => (contentIndex: number) => () => {
+			setSidebarJson((prev) => {
+				const newState = prev.map((section, i) => {
+					if (i === sectionIndex) {
+						const newContent = [...section.content];
+						if (newContent[contentIndex].type === 'grid') {
+							const newGrid = [...newContent[contentIndex].content, ''];
+							newContent[contentIndex] = { ...newContent[contentIndex], content: newGrid };
+						}
+						return { ...section, content: newContent };
+					}
+					return section;
+				});
+				return newState;
+			});
+		},
+		[setSidebarJson],
+	);
+
+	const handleAddSection = useCallback(() => {
+		setSidebarJson((prev) => [...prev, { content: [{ content: '', type: 'text' }], title: '' }]);
+	}, [setSidebarJson]);
+
+	// Memoize section handlers
+	const sectionHandlers = useMemo(() => {
+		if (!SidebarJson || SidebarJson.length === 0) return [];
+		return SidebarJson.map((_, i) => ({
+			onSectionTitleChange: handleSectionTitleChange(i),
+			onSectionMove: handleSectionMove(i),
+			onSectionDelete: handleSectionDelete(i),
+			onContentMove: handleContentMove(i),
+			onContentDelete: handleContentDelete(i),
+			onContentTypeChange: handleContentTypeChange(i),
+			onTextContentChange: handleTextContentChange(i),
+			onLinkTextChange: handleLinkTextChange(i),
+			onLinkHrefChange: handleLinkHrefChange(i),
+			onGridItemMove: handleGridItemMove(i),
+			onGridItemDelete: handleGridItemDelete(i),
+			onGridItemChange: handleGridItemChange(i),
+			onAddContentItem: handleAddContentItem(i),
+			onAddGridItem: handleAddGridItem(i),
+		}));
+	}, [
+		SidebarJson,
+		handleSectionTitleChange,
+		handleSectionMove,
+		handleSectionDelete,
+		handleContentMove,
+		handleContentDelete,
+		handleContentTypeChange,
+		handleTextContentChange,
+		handleLinkTextChange,
+		handleLinkHrefChange,
+		handleGridItemMove,
+		handleGridItemDelete,
+		handleGridItemChange,
+		handleAddContentItem,
+		handleAddGridItem,
+	]);
+
+	if (!SidebarJson) return null;
+
 	return (
-		SidebarJson && (
-			<div className={cn('grid gap-10', className)}>
-				{SidebarJson.map((items, i) => (
-					<div key={`sidebar-${i}`} className='grid gap-2'>
-						<DeleteWrapper
-							onChange={(event) => {
-								const temp = structuredClone(SidebarJson);
-								const oldIndex = temp[i];
-								temp.splice(i, 1);
-								temp.splice(parseInt(event.target.value), 0, oldIndex);
-								setSidebarJson(temp);
-							}}
-							onClick={() => {
-								const temp = structuredClone(SidebarJson);
-								temp.splice(i, 1);
-								setSidebarJson(temp);
-							}}
-							type='horizontal'
-							value={i}
-						>
-							<DoneLabel>
-								Title
-								<Input
-									className='text-center text-base font-semibold'
-									value={items.title}
-									onChange={(event) => {
-										const temp = [...SidebarJson];
-										temp[i].title = event.target.value;
-										setSidebarJson(temp);
-									}}
-								/>
-							</DoneLabel>
-						</DeleteWrapper>
-						<div className='relative space-y-4 py-2 pl-8 before:absolute before:left-[calc(2rem_/_2_-_1px)] before:top-0 before:h-full before:w-[2px] before:rounded-full before:bg-primary-500'>
-							{items.content.map((item, j) => {
-								switch (item.type) {
-									case 'text':
-										return (
-											<DeleteWrapper
-												key={`sidebar-${i}-content-${j}`}
-												onChange={(event) => {
-													const temp = structuredClone(SidebarJson);
-													const oldIndex = temp[i].content[j];
-													temp[i].content.splice(j, 1);
-													temp[i].content.splice(parseInt(event.target.value), 0, oldIndex);
-													setSidebarJson(temp);
-												}}
-												onClick={() => {
-													const temp = structuredClone(SidebarJson);
-													temp[i].content.splice(j, 1);
-													setSidebarJson(temp);
-												}}
-												type='vertical'
-												value={j}
-											>
-												<DoneLabel>
-													Type
-													<select
-														className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-														onChange={(event) => {
-															const eValue = event.target.value as (typeof sidebarType)[number];
-															if (sidebarType.includes(eValue)) {
-																const temp = structuredClone(SidebarJson);
-																temp[i].content[j].type = eValue;
-																temp[i].content[j].content = sidebarContent[eValue];
-																setSidebarJson(temp);
-															}
-														}}
-														value={item.type}
-													>
-														{sidebarType.map((type, x) => (
-															<Option key={`sidebar-${i}-content-${j}-option-${x}`} value={type}>
-																{String(type).charAt(0).toUpperCase() + String(type).slice(1)}
-															</Option>
-														))}
-													</select>
-												</DoneLabel>
-												<DoneLabel>
-													Text
-													<Input
-														value={item.content}
-														onChange={(event) => {
-															const temp = structuredClone(SidebarJson);
-															temp[i].content[j].content = event.target.value;
-															setSidebarJson(temp);
-														}}
-													/>
-												</DoneLabel>
-											</DeleteWrapper>
-										);
-									case 'link':
-										return (
-											<DeleteWrapper
-												key={`sidebar-${i}-content-${j}`}
-												onChange={(event) => {
-													const temp = structuredClone(SidebarJson);
-													const oldIndex = temp[i].content[j];
-													temp[i].content.splice(j, 1);
-													temp[i].content.splice(parseInt(event.target.value), 0, oldIndex);
-													setSidebarJson(temp);
-												}}
-												onClick={() => {
-													const temp = structuredClone(SidebarJson);
-													temp[i].content.splice(j, 1);
-													setSidebarJson(temp);
-												}}
-												type='vertical'
-												value={j}
-											>
-												<DoneLabel>
-													Type
-													<select
-														className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-														onChange={(event) => {
-															const eValue = event.target.value as (typeof sidebarType)[number];
-															if (sidebarType.includes(eValue)) {
-																const temp = structuredClone(SidebarJson);
-																temp[i].content[j].type = eValue;
-																temp[i].content[j].content = sidebarContent[eValue];
-																setSidebarJson(temp);
-															}
-														}}
-														value={item.type}
-													>
-														{sidebarType.map((type, x) => (
-															<Option key={`sidebar-${i}-content-${j}-option-${x}`} value={type}>
-																{String(type).charAt(0).toUpperCase() + String(type).slice(1)}
-															</Option>
-														))}
-													</select>
-												</DoneLabel>
-												<DoneLabel>
-													Label
-													<Input
-														value={item.content.text}
-														onChange={(event) => {
-															const temp = structuredClone(SidebarJson);
-															if (temp[i].content[j].type === 'link') {
-																temp[i].content[j].content.text = event.target.value;
-																setSidebarJson(temp);
-															}
-														}}
-													/>
-												</DoneLabel>
-												<DoneLabel>
-													Link
-													<Input
-														value={item.content.href}
-														onChange={(event) => {
-															const temp = structuredClone(SidebarJson);
-															if (temp[i].content[j].type === 'link') {
-																temp[i].content[j].content.href = event.target.value;
-																setSidebarJson(temp);
-															}
-														}}
-													/>
-												</DoneLabel>
-											</DeleteWrapper>
-										);
-									case 'grid':
-										return (
-											<div key={j} className='grid grid-cols-2 gap-4'>
-												{item.content.map((gridContent, x) => (
-													<DeleteWrapper
-														key={`sidebar-${i}-content-${j}-grid-${x}`}
-														onChange={(event) => {
-															const temp = structuredClone(SidebarJson);
-															if (temp[i].content[j].type === 'grid') {
-																const oldIndex = temp[i].content[j].content[x];
-																temp[i].content[j].content.splice(x, 1);
-																temp[i].content[j].content.splice(parseInt(event.target.value), 0, oldIndex);
-																setSidebarJson(temp);
-															}
-														}}
-														onClick={() => {
-															const temp = structuredClone(SidebarJson);
-															if (temp[i].content[j].type === 'grid') {
-																temp[i].content[j].content.splice(x, 1);
-																setSidebarJson(temp);
-															}
-														}}
-														type='vertical'
-														value={x}
-													>
-														<DoneLabel>
-															Type
-															<select
-																className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-																onChange={(event) => {
-																	const eValue = event.target.value as (typeof sidebarType)[number];
-																	if (sidebarType.includes(eValue)) {
-																		const temp = structuredClone(SidebarJson);
-																		temp[i].content[j].type = eValue;
-																		temp[i].content[j].content = sidebarContent[eValue];
-																		setSidebarJson(temp);
-																	}
-																}}
-																value={item.type}
-															>
-																{sidebarType.map((type, k) => (
-																	<Option key={`sidebar-${i}-content-${j}-grid-${x}-option-${k}`} value={type}>
-																		{String(type).charAt(0).toUpperCase() + String(type).slice(1)}
-																	</Option>
-																))}
-															</select>
-														</DoneLabel>
-														<DoneLabel>
-															Text
-															<Input
-																value={gridContent}
-																onChange={(event) => {
-																	const temp = structuredClone(SidebarJson);
-																	if (temp[i].content[j].type === 'grid') {
-																		temp[i].content[j].content[x] = event.target.value;
-																		setSidebarJson(temp);
-																	}
-																}}
-															/>
-														</DoneLabel>
-													</DeleteWrapper>
-												))}
-												<button
-													className='h-10 w-full rounded-md border bg-body-50 text-primary-500'
-													onClick={() => {
-														const temp = structuredClone(SidebarJson);
-														if (temp[i].content[j].type === 'grid') {
-															temp[i].content[j].content.push('');
-															setSidebarJson(temp);
-														}
-													}}
-												>
-													ADD GRID ITEM
-												</button>
-											</div>
-										);
-									default:
-										return null;
-								}
-							})}
-							<button
-								className='h-10 w-full rounded-md border bg-body-50 text-primary-500'
-								onClick={() => {
-									const temp = structuredClone(SidebarJson);
-									temp[i].content.push({ content: '', type: 'text' });
-									setSidebarJson(temp);
-								}}
-							>
-								ADD SECTION ITEM
-							</button>
-						</div>
-					</div>
-				))}
-				<button
-					className='h-10 w-full rounded-md border bg-body-50 text-primary-500'
-					onClick={() => {
-						const temp = structuredClone(SidebarJson);
-						temp.push({ content: [{ content: '', type: 'text' }], title: '' });
-						setSidebarJson(temp);
-					}}
-				>
-					ADD SECTION
-				</button>
-			</div>
-		)
+		<div className={cn('grid gap-10', className)}>
+			{SidebarJson.map((section, i) => {
+				const handlers = sectionHandlers[i];
+				if (!handlers) return null;
+				return <SidebarSection key={`sidebar-${i}`} sectionIndex={i} section={section} {...handlers} />;
+			})}
+			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={handleAddSection}>
+				ADD SECTION
+			</button>
+		</div>
 	);
 }

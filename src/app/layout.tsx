@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '@/output.css';
+import '../output.css';
 
 import GlobalContext from '@/context/globalContext';
 import HeaderContext from '@/context/headerContext';
@@ -17,9 +17,10 @@ type childrenProp = {
 
 export default function RootLayout(props: childrenProp) {
 	const { children } = props;
+
 	return (
-		<html lang='en'>
-			<body className='flex min-h-screen items-center justify-center bg-slate-400 print:bg-body-100'>
+		<html lang='en' suppressHydrationWarning>
+			<body className='flex min-h-screen items-center justify-center bg-neutral-600 print:bg-body-100'>
 				<main className='flex grow'>
 					<GlobalContext>
 						<HeaderContext>

@@ -1,5 +1,5 @@
 'use client';
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 import { SvgList } from '@/components/SVGs';
 
 export const mainTypes = ['default', 'card'] as const;
@@ -38,13 +38,16 @@ export const MainSectionJsonContext = createContext<TMainSectionState | null>(nu
 export default function MainSectionContext({ children }: { children: ReactNode }) {
 	const [MainSectionJson, setMainSectionJson] = useState<TMainSection[]>([startData]);
 
+	const value = useMemo(
+		() => ({
+			MainSectionJson,
+			setMainSectionJson,
+		}),
+		[MainSectionJson],
+	);
+
 	return (
-		<MainSectionJsonContext.Provider
-			value={{
-				MainSectionJson,
-				setMainSectionJson,
-			}}
-		>
+		<MainSectionJsonContext.Provider value={value}>
 			{children}
 		</MainSectionJsonContext.Provider>
 	);

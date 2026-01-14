@@ -1,5 +1,5 @@
 'use client';
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 
 export const sidebarType = ['text', 'link', 'grid'] as const;
 export const sidebarContent = {
@@ -7,7 +7,7 @@ export const sidebarContent = {
 	link: { text: '', href: '' },
 	grid: [''],
 };
-type TSidebarContent = {
+export type TSidebarContent = {
 	content: string;
 	type: 'text';
 } | {
@@ -44,13 +44,16 @@ export const SidebarJsonContext = createContext<TSidebarState | null>(null);
 export default function SidebarContext({ children }: { children: ReactNode }) {
 	const [SidebarJson, setSidebarJson] = useState<TSidebar[]>([startData]);
 
+	const value = useMemo(
+		() => ({
+			SidebarJson,
+			setSidebarJson,
+		}),
+		[SidebarJson],
+	);
+
 	return (
-		<SidebarJsonContext.Provider
-			value={{
-				SidebarJson,
-				setSidebarJson,
-			}}
-		>
+		<SidebarJsonContext.Provider value={value}>
 			{children}
 		</SidebarJsonContext.Provider>
 	);
