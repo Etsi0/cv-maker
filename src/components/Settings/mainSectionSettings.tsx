@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cn, INPUT_DEBOUNCE_DELAY } from '@/lib/utils';
+import { INPUT_DEBOUNCE_DELAY, buttonBase } from '@/lib/util';
 
 import { mainTypes, TMainSection, useMainSectionJsonContext } from '@/context/mainSectionContext';
 
@@ -11,6 +11,11 @@ import { DeleteWrapper } from '@/components/ui/deleteWrapper';
 
 import { SvgList } from '../SVGs';
 import { IconSelect } from '../iconSelect';
+import { Select } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Card } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { LinkButton } from '@/components/ui/link';
 
 // Memoized option list
 const MainTypeOptions = mainTypes.map((item) => (
@@ -21,7 +26,6 @@ const MainTypeOptions = mainTypes.map((item) => (
 
 // Extracted component for content items
 const MainSectionContentItem = memo(function MainSectionContentItem({
-	sectionIndex,
 	contentIndex,
 	item,
 	onMove,
@@ -30,7 +34,6 @@ const MainSectionContentItem = memo(function MainSectionContentItem({
 	onSubTitleChange,
 	onTextChange,
 }: {
-	sectionIndex: number;
 	contentIndex: number;
 	item: { id: string; title: string; subTitle: string; text: string };
 	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -107,30 +110,32 @@ const MainSectionContentItem = memo(function MainSectionContentItem({
 	}, [localText]);
 
 	return (
-		<DeleteWrapper className='grid-cols-2' onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
-			<Label>
-				Title
-				<Input
-					value={localTitle}
-					onChange={(event) => setLocalTitle(event.target.value)}
-				/>
-			</Label>
-			<Label>
-				Sub Title
-				<Input
-					value={localSubTitle}
-					onChange={(event) => setLocalSubTitle(event.target.value)}
-				/>
-			</Label>
-			<Label className='col-span-2'>
-				Text
-				<textarea
-					className='h-36 rounded-md border p-3 text-sm text-primary-500'
-					value={localText}
-					onChange={(event) => setLocalText(event.target.value)}
-				/>
-			</Label>
-		</DeleteWrapper>
+		<Card>
+			<DeleteWrapper onChange={onMove} onClick={onDelete} type='horizontal' value={contentIndex}>
+				<Label>
+					Title
+					<Input
+						value={localTitle}
+						onChange={(event) => setLocalTitle(event.target.value)}
+					/>
+				</Label>
+				<Label>
+					Sub Title
+					<Input
+						value={localSubTitle}
+						onChange={(event) => setLocalSubTitle(event.target.value)}
+					/>
+				</Label>
+				<Label>
+					Text
+					<Textarea
+						className='h-36'
+						value={localText}
+						onChange={(event) => setLocalText(event.target.value)}
+					/>
+				</Label>
+			</DeleteWrapper>
+		</Card>
 	);
 });
 
@@ -167,20 +172,21 @@ const MainSectionItem = memo(function MainSectionItem({
 	onAddContentItem: () => void;
 }) {
 	return (
-		<div className='grid gap-2'>
-			<DeleteWrapper className='grid-cols-2' onChange={onMove} onClick={onDelete} type='vertical' value={sectionIndex}>
-				<Label>
-					Icon
-					<IconSelect value={section.icon} onChange={(event) => onIconChange(event.target.value as keyof typeof SvgList | '')} />
-				</Label>
-				<Label>
-					Title
-					<Input value={section.title} onChange={(event) => onTitleChange(event.target.value)} />
-				</Label>
+		<Card>
+			<DeleteWrapper onChange={onMove} onClick={onDelete} type='horizontal' value={sectionIndex}>
+				<div className='grid grid-cols-2 gap-2'>
+					<Label>
+						Icon
+						<IconSelect value={section.icon} onChange={(event) => onIconChange(event.target.value as keyof typeof SvgList | '')} />
+					</Label>
+					<Label>
+						Title
+						<Input value={section.title} onChange={(event) => onTitleChange(event.target.value)} />
+					</Label>
+				</div>
 				<Label>
 					Type
-					<select
-						className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+					<Select
 						onChange={(event) => {
 							const eValue = event.target.value;
 							if (eValue === 'default' || eValue === 'card') {
@@ -190,32 +196,26 @@ const MainSectionItem = memo(function MainSectionItem({
 						value={section.type}
 					>
 						{MainTypeOptions}
-					</select>
+					</Select>
 				</Label>
-				<Label>
-					Hide Content
-					<Input className='w-10' type='checkbox' checked={section.hidden} onChange={(event) => onHiddenChange(event.target.checked)} />
-				</Label>
+				<Switch label='Hide Content' checked={section.hidden} onChange={(event) => onHiddenChange(event.target.checked)} />
 			</DeleteWrapper>
-			<div className='relative space-y-4 py-2 pl-8 before:absolute before:left-[calc(2rem/2-1px)] before:top-0 before:h-full before:w-[2px] before:rounded-full before:bg-primary-500'>
-				{section.content.map((item, j) => (
-					<MainSectionContentItem
-						key={item.id}
-						sectionIndex={sectionIndex}
-						contentIndex={j}
-						item={item}
-						onMove={onContentMove(j)}
-						onDelete={onContentDelete(j)}
-						onTitleChange={onContentTitleChange(j)}
-						onSubTitleChange={onContentSubTitleChange(j)}
-						onTextChange={onContentTextChange(j)}
-					/>
-				))}
-				<button className={cn('h-10 w-full rounded-md border bg-body-50 text-primary-500')} onClick={onAddContentItem}>
-					ADD SECTION ITEM
-				</button>
-			</div>
-		</div>
+			{section.content.map((item, j) => (
+				<MainSectionContentItem
+					key={item.id}
+					contentIndex={j}
+					item={item}
+					onMove={onContentMove(j)}
+					onDelete={onContentDelete(j)}
+					onTitleChange={onContentTitleChange(j)}
+					onSubTitleChange={onContentSubTitleChange(j)}
+					onTextChange={onContentTextChange(j)}
+				/>
+			))}
+			<LinkButton className={buttonBase} onClick={onAddContentItem}>
+				ADD SECTION ITEM
+			</LinkButton>
+		</Card>
 	);
 });
 
@@ -457,9 +457,9 @@ export default function MainSectionSettings({ className }: { className?: string 
 			{MainSectionJson.map((section, i) => (
 				<MainSectionItem key={section.id} sectionIndex={i} section={section} {...sectionHandlers[i]} />
 			))}
-			<button className={cn('h-10 w-full rounded-md border bg-body-50 text-primary-500')} onClick={handleAddSection}>
+			<LinkButton className={buttonBase} onClick={handleAddSection}>
 				ADD SECTION
-			</button>
+			</LinkButton>
 		</div>
 	);
 }

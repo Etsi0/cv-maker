@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cn, INPUT_DEBOUNCE_DELAY } from '@/lib/utils';
+import { cn, INPUT_DEBOUNCE_DELAY, buttonBase } from '@/lib/util';
 
 import { sidebarContent, sidebarType, TSidebar, TSidebarContent, useSidebarJsonContext } from '@/context/sidebarContext';
 
@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DeleteWrapper } from '@/components/ui/deleteWrapper';
 import { Option } from '@/components/ui/option';
+import { Card } from '@/components/ui/card';
+import { LinkButton } from '@/components/ui/link';
 
 // Memoized option list to avoid recreating on every render
 const SidebarTypeOptions = sidebarType.map((type) => (
@@ -57,7 +59,6 @@ function GridItemInput({ gridItemId, value, onChange }: { gridItemId: string; va
 
 // Extracted component for text content type
 const SidebarTextItem = memo(function SidebarTextItem({
-	sectionIndex,
 	contentIndex,
 	item,
 	onMove,
@@ -65,7 +66,6 @@ const SidebarTextItem = memo(function SidebarTextItem({
 	onTypeChange,
 	onContentChange,
 }: {
-	sectionIndex: number;
 	contentIndex: number;
 	item: Extract<TSidebarContent, { type: 'text' }>;
 	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -101,36 +101,37 @@ const SidebarTextItem = memo(function SidebarTextItem({
 	}, [localValue]);
 
 	return (
-		<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
-			<Label>
-				Type
-				<select
-					className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-					onChange={(event) => {
-						const eValue = event.target.value as (typeof sidebarType)[number];
-						if (sidebarType.includes(eValue)) {
-							onTypeChange(eValue);
-						}
-					}}
-					value={item.type}
-				>
-					{SidebarTypeOptions}
-				</select>
-			</Label>
-			<Label>
-				Text
-				<Input
-					value={localValue}
-					onChange={(event) => setLocalValue(event.target.value)}
-				/>
-			</Label>
-		</DeleteWrapper>
+		<Card>
+			<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+				<Label>
+					Type
+					<select
+						className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+						onChange={(event) => {
+							const eValue = event.target.value as (typeof sidebarType)[number];
+							if (sidebarType.includes(eValue)) {
+								onTypeChange(eValue);
+							}
+						}}
+						value={item.type}
+					>
+						{SidebarTypeOptions}
+					</select>
+				</Label>
+				<Label>
+					Text
+					<Input
+						value={localValue}
+						onChange={(event) => setLocalValue(event.target.value)}
+					/>
+				</Label>
+			</DeleteWrapper>
+		</Card>
 	);
 });
 
 // Extracted component for link content type
 const SidebarLinkItem = memo(function SidebarLinkItem({
-	sectionIndex,
 	contentIndex,
 	item,
 	onMove,
@@ -139,7 +140,6 @@ const SidebarLinkItem = memo(function SidebarLinkItem({
 	onTextChange,
 	onHrefChange,
 }: {
-	sectionIndex: number;
 	contentIndex: number;
 	item: Extract<TSidebarContent, { type: 'link' }>;
 	onMove: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -196,44 +196,44 @@ const SidebarLinkItem = memo(function SidebarLinkItem({
 	}, [localHref]);
 
 	return (
-		<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
-			<Label>
-				Type
-				<select
-					className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
-					onChange={(event) => {
-						const eValue = event.target.value as (typeof sidebarType)[number];
-						if (sidebarType.includes(eValue)) {
-							onTypeChange(eValue);
-						}
-					}}
-					value={item.type}
-				>
-					{SidebarTypeOptions}
-				</select>
-			</Label>
-			<Label>
-				Label
-				<Input
-					value={localText}
-					onChange={(event) => setLocalText(event.target.value)}
-				/>
-			</Label>
-			<Label>
-				Link
-				<Input
-					value={localHref}
-					onChange={(event) => setLocalHref(event.target.value)}
-				/>
-			</Label>
-		</DeleteWrapper>
+		<Card>
+			<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
+				<Label>
+					Type
+					<select
+						className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+						onChange={(event) => {
+							const eValue = event.target.value as (typeof sidebarType)[number];
+							if (sidebarType.includes(eValue)) {
+								onTypeChange(eValue);
+							}
+						}}
+						value={item.type}
+					>
+						{SidebarTypeOptions}
+					</select>
+				</Label>
+				<Label>
+					Label
+					<Input
+						value={localText}
+						onChange={(event) => setLocalText(event.target.value)}
+					/>
+				</Label>
+				<Label>
+					Link
+					<Input
+						value={localHref}
+						onChange={(event) => setLocalHref(event.target.value)}
+					/>
+				</Label>
+			</DeleteWrapper>
+		</Card>
 	);
 });
 
 // Extracted component for grid content type
 const SidebarGridItem = memo(function SidebarGridItem({
-	sectionIndex,
-	contentIndex,
 	item,
 	onTypeChange,
 	onGridItemMove,
@@ -241,8 +241,6 @@ const SidebarGridItem = memo(function SidebarGridItem({
 	onGridItemChange,
 	onAddGridItem,
 }: {
-	sectionIndex: number;
-	contentIndex: number;
 	item: Extract<TSidebarContent, { type: 'grid' }>;
 	onTypeChange: (value: (typeof sidebarType)[number]) => void;
 	onGridItemMove: (gridIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -251,8 +249,8 @@ const SidebarGridItem = memo(function SidebarGridItem({
 	onAddGridItem: () => void;
 }) {
 	return (
-		<div className='grid grid-cols-2 gap-4'>
-			{item.content.map((gridItem, x: number) => {
+		<Card className='grid-cols-2'>
+			{item.content.map((gridItem) => {
 				const gridItemIndex = item.content.findIndex((item) => item.id === gridItem.id);
 				return (
 					<DeleteWrapper
@@ -284,7 +282,7 @@ const SidebarGridItem = memo(function SidebarGridItem({
 			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddGridItem}>
 				ADD GRID ITEM
 			</button>
-		</div>
+		</Card>
 	);
 });
 
@@ -352,7 +350,7 @@ const SidebarSection = memo(function SidebarSection({
 	}, [localTitle]);
 
 	return (
-		<div className='grid gap-2'>
+		<Card>
 			<DeleteWrapper onChange={onSectionMove} onClick={onSectionDelete} type='horizontal' value={sectionIndex}>
 				<Label>
 					Title
@@ -363,59 +361,53 @@ const SidebarSection = memo(function SidebarSection({
 					/>
 				</Label>
 			</DeleteWrapper>
-			<div className='relative space-y-4 py-2 pl-8 before:absolute before:left-[calc(2rem/2-1px)] before:top-0 before:h-full before:w-[2px] before:rounded-full before:bg-primary-500'>
-				{section.content.map((item, j) => {
-					switch (item.type) {
-						case 'text':
-							return (
-								<SidebarTextItem
-									key={item.id}
-									sectionIndex={sectionIndex}
-									contentIndex={j}
-									item={item}
-									onMove={onContentMove(j)}
-									onDelete={onContentDelete(j)}
-									onTypeChange={onContentTypeChange(j)}
-									onContentChange={onTextContentChange(j)}
-								/>
-							);
-						case 'link':
-							return (
-								<SidebarLinkItem
-									key={item.id}
-									sectionIndex={sectionIndex}
-									contentIndex={j}
-									item={item}
-									onMove={onContentMove(j)}
-									onDelete={onContentDelete(j)}
-									onTypeChange={onContentTypeChange(j)}
-									onTextChange={onLinkTextChange(j)}
-									onHrefChange={onLinkHrefChange(j)}
-								/>
-							);
-						case 'grid':
-							return (
-								<SidebarGridItem
-									key={item.id}
-									sectionIndex={sectionIndex}
-									contentIndex={j}
-									item={item}
-									onTypeChange={onContentTypeChange(j)}
-									onGridItemMove={onGridItemMove(j)}
-									onGridItemDelete={onGridItemDelete(j)}
-									onGridItemChange={onGridItemChange(j)}
-									onAddGridItem={onAddGridItem(j)}
-								/>
-							);
-						default:
-							return null;
-					}
-				})}
-				<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddContentItem}>
-					ADD SECTION ITEM
-				</button>
-			</div>
-		</div>
+			{section.content.map((item, j) => {
+				switch (item.type) {
+					case 'text':
+						return (
+							<SidebarTextItem
+								key={item.id}
+								contentIndex={j}
+								item={item}
+								onMove={onContentMove(j)}
+								onDelete={onContentDelete(j)}
+								onTypeChange={onContentTypeChange(j)}
+								onContentChange={onTextContentChange(j)}
+							/>
+						);
+					case 'link':
+						return (
+							<SidebarLinkItem
+								key={item.id}
+								contentIndex={j}
+								item={item}
+								onMove={onContentMove(j)}
+								onDelete={onContentDelete(j)}
+								onTypeChange={onContentTypeChange(j)}
+								onTextChange={onLinkTextChange(j)}
+								onHrefChange={onLinkHrefChange(j)}
+							/>
+						);
+					case 'grid':
+						return (
+							<SidebarGridItem
+								key={item.id}
+								item={item}
+								onTypeChange={onContentTypeChange(j)}
+								onGridItemMove={onGridItemMove(j)}
+								onGridItemDelete={onGridItemDelete(j)}
+								onGridItemChange={onGridItemChange(j)}
+								onAddGridItem={onAddGridItem(j)}
+							/>
+						);
+					default:
+						return null;
+				}
+			})}
+			<LinkButton className={buttonBase} onClick={onAddContentItem}>
+				ADD SECTION ITEM
+			</LinkButton>
+		</Card>
 	);
 });
 
@@ -730,9 +722,9 @@ export default function SidebarSettings({ className }: { className?: string }) {
 				if (!handlers) return null;
 				return <SidebarSection key={section.id} sectionIndex={i} section={section} {...handlers} />;
 			})}
-			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={handleAddSection}>
+			<LinkButton className={buttonBase} onClick={handleAddSection}>
 				ADD SECTION
-			</button>
+			</LinkButton>
 		</div>
 	);
 }

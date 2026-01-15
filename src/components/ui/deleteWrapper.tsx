@@ -1,6 +1,6 @@
-import { ChangeEvent, ChangeEventHandler, Children, MouseEvent } from 'react';
+import { ChangeEventHandler, Children, MouseEvent } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/util';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DeleteButton } from '@/components/ui/deleteButton';
@@ -25,7 +25,7 @@ export function DeleteWrapper({ children, className, onChange, onClick, type, va
 			)}>
 				<Label>
 					Index
-					<Input className={cn(className)} type='number' value={value} min={0} size={1} inputMode='numeric' onChange={onChange} />
+					<Input className={cn('aspect-square text-center', className)} type='string' value={value} min={0} size={1} inputMode='numeric' onChange={onChange} />
 				</Label>
 				{content.shift()}
 				<DeleteButton onClick={onClick} type={type} />

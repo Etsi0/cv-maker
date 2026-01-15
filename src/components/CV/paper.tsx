@@ -9,7 +9,7 @@ import { useSidebarJsonContext } from '@/context/sidebarContext';
 import { TMainSection, useMainSectionJsonContext } from '@/context/mainSectionContext';
 
 import { SvgList } from '@/components/SVGs';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/util';
 import { CreditLink } from './creditLine';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';

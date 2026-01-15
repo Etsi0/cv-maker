@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { ButtonHTMLAttributes, Dispatch, SetStateAction, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/util';
 import { Input } from '../ui/input';
 
 import GlobalSettings from '@/components/Settings/globalSettings';
@@ -16,6 +16,8 @@ import { TMainSection, useMainSectionJsonContext } from '@/context/mainSectionCo
 import { ReadFile } from '@/components/readFile';
 import { Label } from '@/components/ui/label';
 import { migrateHeader, migrateSidebar, migrateMainSection } from '@/lib/migrateData';
+import { LinkButton } from '@/components/ui/link';
+import { whenHoveringButton } from '@/lib/util';
 
 const Tabs = ['Global', 'Header', 'Sidebar', 'MainSection'];
 type TTab = typeof Tabs[number];
@@ -57,10 +59,16 @@ export default function Settings() {
 	const { MainSectionJson, setMainSectionJson } = useMainSectionJsonContext();
 
 	function setSettings(Json: TSettings) {
-		setGlobalJson(Json.Global);
-		setHeaderJson(migrateHeader(Json.Header));
-		setSidebarJson(migrateSidebar(Json.Sidebar));
-		setMainSectionJson(migrateMainSection(Json.MainSection));
+		try {
+			setGlobalJson(Json.Global);
+			setHeaderJson(migrateHeader(Json.Header));
+			setSidebarJson(migrateSidebar(Json.Sidebar));
+			setMainSectionJson(migrateMainSection(Json.MainSection));
+		} catch (error) {
+			console.error('Error importing file:', error);
+			alert(error instanceof Error ? error.message : 'Invalid file structure. Please check that the file has the correct format.');
+			throw error; // Re-throw to ensure the error is not silently swallowed
+		}
 	}
 
 	function formattedDate() {
@@ -102,16 +110,13 @@ export default function Settings() {
 				<hr className='mb-2 mt-3 border-border' />
 				<Label>
 					Import Settings
-					<Input className='cursor-pointer' type='file' accept='.json' onChange={(event) => ReadFile(event, setSettings)} />
+					<Input className={cn('cursor-pointer', whenHoveringButton)} type='file' accept='.json' onChange={(event) => ReadFile(event, setSettings)} />
 				</Label>
 				<Label>
 					Export Settings
-					<button
-						className='cursor-pointer text-sm text-left bg-body-100 p-3 rounded-md border border-body-200'
-						onClick={handleDownload}
-					>
+					<LinkButton className='cursor-pointer text-left bg-body-100 px-3 py-2 border border-body-200 rounded-md' onClick={handleDownload}>
 						Export Settings
-					</button>
+					</LinkButton>
 				</Label>
 			</div>
 		</>

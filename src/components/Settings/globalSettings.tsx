@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useGlobalJsonContext } from '@/context/globalContext';
-import { clamp, cn, INPUT_DEBOUNCE_DELAY } from '@/lib/utils';
+import { clamp, cn, INPUT_DEBOUNCE_DELAY } from '@/lib/util';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,8 +101,8 @@ export default function GlobalSettings({ className }: { className?: string }) {
 	return (
 		<div className={cn(className)}>
 			<ColorHueInput value={GlobalJson.color} onChange={handleColorChange} />
-			<Switch label='Black and white' className='text-sm!' checked={GlobalJson.blackWhite === 1} onChange={handleBlackWhiteChange} />
-			<Switch label='DarkMode' className='text-sm!' checked={GlobalJson.darkMode === 1} onChange={handleDarkModeChange} />
+			<Switch label='Black and white' checked={GlobalJson.blackWhite === 1} onChange={handleBlackWhiteChange} />
+			<Switch label='DarkMode' checked={GlobalJson.darkMode === 1} onChange={handleDarkModeChange} />
 		</div>
 	);
 }

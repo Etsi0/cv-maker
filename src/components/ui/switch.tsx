@@ -1,7 +1,7 @@
 'use client';
 
 import { InputHTMLAttributes, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/util';
 import { Label } from './label';
 
 type SwitchProps = {
@@ -22,7 +22,7 @@ export const Switch = ({ label = 'THIS TEXT SHOULD NOT BE HERE', className, disa
 	return (
 		<Label
 			className={cn(
-				'cursor-pointer flex items-center [--height:1.33lh] [--aspect-ratio:2]',
+				'cursor-pointer flex items-center [--height:1lh] [--aspect-ratio:2]',
 				disabled && 'cursor-not-allowed',
 				className
 			)}

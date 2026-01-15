@@ -2,7 +2,7 @@ import { ChangeEvent, memo, useCallback, useEffect, useMemo, useRef, useState } 
 import Image from 'next/image';
 
 import { useHeaderJsonContext } from '@/context/headerContext';
-import { cn, INPUT_DEBOUNCE_DELAY } from '@/lib/utils';
+import { cn, INPUT_DEBOUNCE_DELAY, buttonBase } from '@/lib/util';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,8 @@ import { IconSelect } from '@/components/iconSelect';
 
 import { SvgList } from '@/components/SVGs';
 import { DeleteButton } from '@/components/ui/deleteButton';
+import { Card } from '@/components/ui/card';
+import { LinkButton } from '@/components/ui/link';
 
 function HeaderNameInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
 	const [localValue, setLocalValue] = useState(value);
@@ -95,19 +97,21 @@ const HeaderContentItem = memo(function HeaderContentItem({
 	}, [localText]);
 
 	return (
-		<DeleteWrapper onChange={onMove} onClick={onDelete} type='horizontal' value={index}>
-			<Label>
-				Icon
-				<IconSelect value={item.icon} onChange={(event) => onIconChange(event.target.value as keyof typeof SvgList | '')} />
-			</Label>
-			<Label>
-				Text
-				<Input
-					value={localText}
-					onChange={(event) => setLocalText(event.target.value)}
-				/>
-			</Label>
-		</DeleteWrapper>
+		<Card>
+			<DeleteWrapper onChange={onMove} onClick={onDelete} type='horizontal' value={index}>
+				<Label>
+					Icon
+					<IconSelect value={item.icon} onChange={(event) => onIconChange(event.target.value as keyof typeof SvgList | '')} />
+				</Label>
+				<Label>
+					Text
+					<Input
+						value={localText}
+						onChange={(event) => setLocalText(event.target.value)}
+					/>
+				</Label>
+			</DeleteWrapper>
+		</Card>
 	);
 });
 
@@ -219,7 +223,10 @@ export default function HeaderSettings({ className }: { className?: string }) {
 				<Label>
 					Image
 					<Label className='place-content-start' tabIndex={0}>
-						<div className='relative inline-block cursor-pointer overflow-hidden rounded-md transition before:absolute before:grid before:h-full before:w-full before:place-items-center before:bg-neutral-900/75 before:text-center before:text-white before:opacity-0 before:transition-opacity before:content-["Click_to_add_a_image"] before:hover:opacity-100'>
+						<div className={cn(
+							'relative inline-block cursor-pointer overflow-hidden rounded-md transition',
+							'before:absolute before:grid before:h-full before:w-full before:place-items-center before:bg-neutral-900/75 before:text-center before:text-white before:opacity-0 before:transition-opacity before:content-["Click_to_add_a_image"] hover:before:opacity-100'
+						)}>
 							{(HeaderJson.img && <Image className='aspect-square object-cover' src={HeaderJson.img} alt={'pfp'} width={96} height={96} />) || (
 								<div className='h-24 w-24 bg-primary-50'></div>
 							)}
@@ -241,9 +248,9 @@ export default function HeaderSettings({ className }: { className?: string }) {
 					/>
 				);
 			})}
-			<button className={cn('h-10 w-full rounded-md border bg-body-50 text-primary-500')} onClick={handleAddContent}>
-				ADD
-			</button>
+			<LinkButton className={buttonBase} onClick={handleAddContent}>
+				ADD CONTENT
+			</LinkButton>
 		</div>
 	);
 }
