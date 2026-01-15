@@ -1,30 +1,28 @@
 import { THeader } from '@/context/headerContext';
 import { TSidebar, TSidebarContent } from '@/context/sidebarContext';
 import { TMainSection } from '@/context/mainSectionContext';
+import { tryCatch } from '@/lib/util';
 
-/**
- * Validates that the header has the correct structure
- */
-function validateHeader(header: unknown): asserts header is THeader {
+// Header migrations
+function migrateHeader_20260101(header: unknown): THeader {
 	if (!header || typeof header !== 'object') {
 		throw new Error('Invalid file structure: Header must be an object');
 	}
-	const h = header as Record<string, unknown>;
+	const headerObj = header as Record<string, unknown>;
 	
-	if (!Array.isArray(h.content)) {
+	if (!Array.isArray(headerObj.content)) {
 		throw new Error('Invalid file structure: Header.content must be an array');
 	}
 	
-	if (typeof h.name !== 'string') {
+	if (typeof headerObj.name !== 'string') {
 		throw new Error('Invalid file structure: Header.name must be a string');
 	}
 	
-	if (typeof h.img !== 'string') {
+	if (typeof headerObj.img !== 'string') {
 		throw new Error('Invalid file structure: Header.img must be a string');
 	}
 	
-	// Validate content items
-	h.content.forEach((item, index) => {
+	headerObj.content.forEach((item, index) => {
 		if (!item || typeof item !== 'object') {
 			throw new Error(`Invalid file structure: Header.content[${index}] must be an object`);
 		}
@@ -36,18 +34,12 @@ function validateHeader(header: unknown): asserts header is THeader {
 			throw new Error(`Invalid file structure: Header.content[${index}].icon must be a string`);
 		}
 	});
-}
-
-/**
- * Adds IDs to header content items if they don't have them
- */
-export function migrateHeader(header: THeader): THeader {
-	validateHeader(header);
+	
+	const typedHeader = headerObj as THeader;
 	
 	return {
-		...header,
-		content: header.content.map((item) => {
-			// Check if item already has an id (for backward compatibility)
+		...typedHeader,
+		content: typedHeader.content.map((item) => {
 			const itemWithId = item as Record<string, unknown>;
 			if (itemWithId.id && typeof itemWithId.id === 'string') {
 				return item;
@@ -60,10 +52,18 @@ export function migrateHeader(header: THeader): THeader {
 	};
 }
 
-/**
- * Validates that the sidebar has the correct structure
- */
-function validateSidebar(sidebar: unknown): asserts sidebar is TSidebar[] {
+export function migrateHeader(header: unknown): THeader {
+	const [error, data] = tryCatch(() => migrateHeader_20260101(header));
+	if (error) {
+		// If latest migration fails, try previous versions
+		// For now, just re-throw since this is the first migration
+		throw error;
+	}
+	return data;
+}
+
+// Sidebar migrations
+function migrateSidebar_20260101(sidebar: unknown): TSidebar[] {
 	if (!Array.isArray(sidebar)) {
 		throw new Error('Invalid file structure: Sidebar must be an array');
 	}
@@ -82,7 +82,6 @@ function validateSidebar(sidebar: unknown): asserts sidebar is TSidebar[] {
 			throw new Error(`Invalid file structure: Sidebar[${sectionIndex}].content must be an array`);
 		}
 		
-		// Validate content items
 		sectionObj.content.forEach((item, itemIndex) => {
 			if (!item || typeof item !== 'object') {
 				throw new Error(`Invalid file structure: Sidebar[${sectionIndex}].content[${itemIndex}] must be an object`);
@@ -116,46 +115,36 @@ function validateSidebar(sidebar: unknown): asserts sidebar is TSidebar[] {
 			}
 		});
 	});
-}
-
-/**
- * Adds IDs to sidebar sections and content items if they don't have them
- */
-type LegacySidebarSection = {
-	id?: string;
-	content: unknown[];
-	title: string;
-};
-
-type LegacyGridItem = string | { id?: string; value?: string };
-
-export function migrateSidebar(sidebar: TSidebar[]): TSidebar[] {
-	validateSidebar(sidebar);
 	
-	return sidebar.map((section) => {
+	const typedSidebar = sidebar as TSidebar[];
+	
+	type LegacySidebarSection = {
+		id?: string;
+		content: unknown[];
+		title: string;
+	};
+
+	type LegacyGridItem = string | { id?: string; value?: string };
+	
+	return typedSidebar.map((section) => {
 		const sectionWithId = section as unknown as LegacySidebarSection;
 		return {
 			...section,
 			id: (sectionWithId.id && typeof sectionWithId.id === 'string') ? sectionWithId.id : crypto.randomUUID(),
 			content: section.content.map((item) => {
-				// Check if item already has an id (for backward compatibility)
 				const itemWithId = item as unknown as Record<string, unknown>;
 				if (itemWithId.id && typeof itemWithId.id === 'string') {
-					// If it's a grid item, check if grid items have IDs
 					if (item.type === 'grid') {
 						const gridContent = item.content as unknown[];
-					// Check if grid items are strings (old format) or objects (new format)
-					if (Array.isArray(gridContent) && gridContent.length > 0 && typeof gridContent[0] === 'string') {
-						// Convert string array to object array with IDs
-						return {
-							...item,
-							content: (gridContent as string[]).map((value: string) => ({
-								id: crypto.randomUUID(),
-								value,
-							})),
-						} as TSidebarContent;
+						if (Array.isArray(gridContent) && gridContent.length > 0 && typeof gridContent[0] === 'string') {
+							return {
+								...item,
+								content: (gridContent as string[]).map((value: string) => ({
+									id: crypto.randomUUID(),
+									value,
+								})),
+							} as TSidebarContent;
 						}
-						// Grid items already have IDs, but check each one
 						const migratedGrid = (gridContent as LegacyGridItem[]).map((gridItem) => {
 							if (typeof gridItem === 'string') {
 								return { id: crypto.randomUUID(), value: gridItem };
@@ -173,12 +162,9 @@ export function migrateSidebar(sidebar: TSidebar[]): TSidebar[] {
 					}
 					return item;
 				}
-				// Add id to item based on its type
 				if (item.type === 'grid') {
 					const gridContent = item.content as unknown[];
-					// Check if grid items are strings (old format) or objects (new format)
 					if (Array.isArray(gridContent) && gridContent.length > 0 && typeof gridContent[0] === 'string') {
-						// Convert string array to object array with IDs
 						return {
 							...item,
 							id: crypto.randomUUID(),
@@ -188,7 +174,6 @@ export function migrateSidebar(sidebar: TSidebar[]): TSidebar[] {
 							})),
 						} as TSidebarContent;
 					}
-					// Grid items might already be objects but without IDs
 					const migratedGrid = (gridContent as LegacyGridItem[]).map((gridItem) => {
 						if (typeof gridItem === 'string') {
 							return { id: crypto.randomUUID(), value: gridItem };
@@ -214,10 +199,18 @@ export function migrateSidebar(sidebar: TSidebar[]): TSidebar[] {
 	});
 }
 
-/**
- * Validates that the main section has the correct structure
- */
-function validateMainSection(sections: unknown): asserts sections is TMainSection[] {
+export function migrateSidebar(sidebar: unknown): TSidebar[] {
+	const [error, data] = tryCatch(() => migrateSidebar_20260101(sidebar));
+	if (error) {
+		// If latest migration fails, try previous versions
+		// For now, just re-throw since this is the first migration
+		throw error;
+	}
+	return data;
+}
+
+// MainSection migrations
+function migrateMainSection_20260101(sections: unknown): TMainSection[] {
 	if (!Array.isArray(sections)) {
 		throw new Error('Invalid file structure: MainSection must be an array');
 	}
@@ -240,8 +233,8 @@ function validateMainSection(sections: unknown): asserts sections is TMainSectio
 			throw new Error(`Invalid file structure: MainSection[${sectionIndex}].type must be 'default' or 'card'`);
 		}
 		
-		if (typeof sectionObj.hidden !== 'boolean') {
-			throw new Error(`Invalid file structure: MainSection[${sectionIndex}].hidden must be a boolean`);
+		if (typeof sectionObj.hidden !== 'boolean' && typeof sectionObj.hidden !== 'number') {
+			throw new Error(`Invalid file structure: MainSection[${sectionIndex}].hidden must be a boolean or number`);
 		}
 		
 		if (sectionObj.icon !== undefined && typeof sectionObj.icon !== 'string') {
@@ -252,7 +245,6 @@ function validateMainSection(sections: unknown): asserts sections is TMainSectio
 			throw new Error(`Invalid file structure: MainSection[${sectionIndex}].content must be an array`);
 		}
 		
-		// Validate content items
 		sectionObj.content.forEach((item, itemIndex) => {
 			if (!item || typeof item !== 'object') {
 				throw new Error(`Invalid file structure: MainSection[${sectionIndex}].content[${itemIndex}] must be an object`);
@@ -272,24 +264,21 @@ function validateMainSection(sections: unknown): asserts sections is TMainSectio
 			}
 		});
 	});
-}
-
-/**
- * Adds IDs to main sections and content items if they don't have them
- */
-export function migrateMainSection(sections: TMainSection[]): TMainSection[] {
-	validateMainSection(sections);
 	
 	return sections.map((section) => {
-		// Check if section already has an id (for backward compatibility)
-		const sectionWithId = section as unknown as Record<string, unknown>;
-		const sectionId = (sectionWithId.id && typeof sectionWithId.id === 'string') ? section.id : crypto.randomUUID();
+		const sectionObj = section as Record<string, unknown>;
+		const sectionId = (sectionObj.id && typeof sectionObj.id === 'string') ? sectionObj.id : crypto.randomUUID();
+		
+		const sectionHidden = sectionObj.hidden;
+		const hidden = typeof sectionHidden === 'number' ? sectionHidden !== 0 : (sectionHidden as boolean);
+		
+		const typedSection = section as TMainSection;
 		
 		return {
-			...section,
+			...typedSection,
 			id: sectionId,
-			content: section.content.map((item) => {
-				// Check if item already has an id (for backward compatibility)
+			hidden,
+			content: typedSection.content.map((item) => {
 				const itemWithId = item as unknown as Record<string, unknown>;
 				if (itemWithId.id && typeof itemWithId.id === 'string') {
 					return item;
@@ -301,4 +290,14 @@ export function migrateMainSection(sections: TMainSection[]): TMainSection[] {
 			}),
 		};
 	});
+}
+
+export function migrateMainSection(sections: unknown): TMainSection[] {
+	const [error, data] = tryCatch(() => migrateMainSection_20260101(sections));
+	if (error) {
+		// If latest migration fails, try previous versions
+		// For now, just re-throw since this is the first migration
+		throw error;
+	}
+	return data;
 }
