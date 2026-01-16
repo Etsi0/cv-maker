@@ -45,7 +45,7 @@ const HeaderSection = memo(function HeaderSection() {
 	return (
 		<div className='flex flex-col items-center gap-2'>
 			{HeaderJson.img && <Image className='mb-2 aspect-square rounded-lg object-cover' src={HeaderJson.img} alt='Your profile picture' width={80} height={80} />}
-			<h1 className='text-3xl uppercase'>{HeaderJson.name || 'Undefined'}</h1>
+			<h1 className='uppercase'>{HeaderJson.name || 'Undefined'}</h1>
 			<ul className='flex flex-wrap gap-3'>
 				{HeaderJson.content.map((item) => (
 					<li key={item.id} className='flex items-center gap-1'>
@@ -65,7 +65,7 @@ const SidebarSection = memo(function SidebarSection() {
 		<div className='grid shrink grow-0 basis-auto gap-3 self-start text-center'>
 			{SidebarJson.map((item) => (
 				<div key={item.id}>
-					<h2 className='text-md uppercase'>{item.title}</h2>
+					<h2 className='uppercase'>{item.title}</h2>
 					<div className='grid justify-center'>
 						{item.content.map((contentItem) => {
 							switch (contentItem.type) {
@@ -79,7 +79,7 @@ const SidebarSection = memo(function SidebarSection() {
 									);
 								case 'grid':
 									return (
-										<ul key={contentItem.id} className={cn('relative grid grid-cols-2 gap-x-3 before:left-1/2 before:bg-primary-50', pseudoClasses)}>
+										<ul key={contentItem.id} className={cn('relative grid grid-cols-2 gap-x-3 before:left-1/2 before:bg-primary-100 dark:before:bg-primary-900', pseudoClasses)}>
 											{contentItem.content.map((gridItem) => (
 												<li key={gridItem.id} className='odd:justify-self-end even:justify-self-start'>
 													{gridItem.value}
@@ -104,7 +104,7 @@ const MainCard = memo(function MainCard({ title, subTitle, text }: TAchievementD
 	return (
 		<div
 			className={cn(
-				'space-y-1 rounded-md bg-body-100 p-3 shadow-[10px_10px_15px_-3px_rgb(0_0_0/0.1),4px_4px_6px_-4px_rgb(0_0_0/0.1),-10px_-10px_15px_-3px_rgb(255_255_255),-4px_-4px_6px_-4px_rgb(255_255_255)]',
+				'space-y-1 rounded-md bg-body-50 p-3 shadow-[10px_10px_15px_-3px_rgb(0_0_0/0.1),4px_4px_6px_-4px_rgb(0_0_0/0.1),-10px_-10px_15px_-3px_rgb(255_255_255),-4px_-4px_6px_-4px_rgb(255_255_255)]',
 				GlobalJson.darkMode && 'bg-body-200 shadow-none',
 			)}
 		>
@@ -144,9 +144,9 @@ const MainSectionWrapper = memo(function MainSectionWrapper({ data, children }: 
 		<div className='grid gap-1'>
 			<div className='flex items-center'>
 				<StrToImg str={data.icon} className='mx-2.5' />
-				<h2 className='text-md z-10 uppercase'>{data.title}</h2>
+				<h2 className='z-10 uppercase'>{data.title}</h2>
 			</div>
-			<div className={cn('relative ml-10 grid gap-4 before:left-[calc((10rem-2px)/2/4*-1)] before:bg-primary-200', pseudoClasses, data.type === 'card' && 'grid-cols-3')}>{children}</div>
+			<div className={cn('relative ml-10 grid gap-4 before:left-[calc((10rem-2px)/2/4*-1)] before:bg-primary-300 dark:before:bg-primary-700', pseudoClasses, data.type === 'card' && 'grid-cols-3')}>{children}</div>
 		</div>
 	);
 });

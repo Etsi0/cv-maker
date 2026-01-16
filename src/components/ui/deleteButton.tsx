@@ -17,6 +17,7 @@ export function DeleteButton({ onClick, type = 'horizontal', className }: TDelet
 			<LinkButton
 				className={cn(
 					'group h-10 bg-primary-500 p-2 border border-primary-400 rounded-md transition-colors',
+					'dark:not-[:is(:hover,_:focus-visible)]:border-primary-600',
 					'hover:bg-red-200 hover:border-red-300',
 					'focus-visible:bg-red-200 focus-visible:border-red-300 focus-visible:outline-red-300',
 					type === 'horizontal' && 'aspect-square',

@@ -69,13 +69,13 @@
 			Font
 			startValue + (endValue - startValue) * (((index - 1) / (totalNumber - 1)) ^ 1.5)
 		==================================================*/
-		--font-size-1: .75rem;
-		--font-size-2: .7670103454rem;
-		--font-size-3: .7981125224rem;
-		--font-size-4: .8383883476rem;
-		--font-size-5: .8860827635rem;
-		--font-size-6: .9401814436rem;
-		--font-size-7: 1rem;
+		--font-size-1: .6875rem;
+		--font-size-2: 0.7098606798rem;
+		--font-size-3: 0.7507455532rem;
+		--font-size-4: 0.8036895004rem;
+		--font-size-5: 0.8663854382rem;
+		--font-size-6: 0.9375rem;
+		--font-size-7: 1.75rem;
 
 		/*==================================================
 			Body colors
@@ -204,8 +204,11 @@
 	body,
 	dialog > * {
 		color: var(--color-text-700);
+		font-family: "Inter", sans-serif;
+		font-optical-sizing: auto;
 		font-size: var(--font-size-1);
 		font-weight: 400;
+		font-style: normal;
 		line-height: 1.5;
 	}
 

@@ -9,6 +9,7 @@ import { DeleteWrapper } from '@/components/ui/deleteWrapper';
 import { Option } from '@/components/ui/option';
 import { Card } from '@/components/ui/card';
 import { LinkButton } from '@/components/ui/link';
+import { Select } from '@/components/ui/select';
 
 // Memoized option list to avoid recreating on every render
 const SidebarTypeOptions = sidebarType.map((type) => (
@@ -105,8 +106,7 @@ const SidebarTextItem = memo(function SidebarTextItem({
 			<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
 				<Label>
 					Type
-					<select
-						className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+					<Select
 						onChange={(event) => {
 							const eValue = event.target.value as (typeof sidebarType)[number];
 							if (sidebarType.includes(eValue)) {
@@ -116,7 +116,7 @@ const SidebarTextItem = memo(function SidebarTextItem({
 						value={item.type}
 					>
 						{SidebarTypeOptions}
-					</select>
+					</Select>
 				</Label>
 				<Label>
 					Text
@@ -200,8 +200,7 @@ const SidebarLinkItem = memo(function SidebarLinkItem({
 			<DeleteWrapper onChange={onMove} onClick={onDelete} type='vertical' value={contentIndex}>
 				<Label>
 					Type
-					<select
-						className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+					<Select
 						onChange={(event) => {
 							const eValue = event.target.value as (typeof sidebarType)[number];
 							if (sidebarType.includes(eValue)) {
@@ -211,7 +210,7 @@ const SidebarLinkItem = memo(function SidebarLinkItem({
 						value={item.type}
 					>
 						{SidebarTypeOptions}
-					</select>
+					</Select>
 				</Label>
 				<Label>
 					Label
@@ -262,8 +261,7 @@ const SidebarGridItem = memo(function SidebarGridItem({
 					>
 						<Label>
 							Type
-							<select
-								className='h-10 w-full rounded-md border bg-body-50 px-3 py-2 text-sm text-primary-500'
+							<Select
 								onChange={(event) => {
 									const eValue = event.target.value as (typeof sidebarType)[number];
 									if (sidebarType.includes(eValue)) {
@@ -273,15 +271,15 @@ const SidebarGridItem = memo(function SidebarGridItem({
 								value={item.type}
 							>
 								{SidebarTypeOptions}
-							</select>
+							</Select>
 						</Label>
 						<GridItemInput gridItemId={gridItem.id} value={gridItem.value} onChange={onGridItemChange} />
 					</DeleteWrapper>
 				);
 			})}
-			<button className='h-10 w-full rounded-md border bg-body-50 text-primary-500' onClick={onAddGridItem}>
+			<LinkButton className={buttonBase} onClick={onAddGridItem}>
 				ADD GRID ITEM
-			</button>
+			</LinkButton>
 		</Card>
 	);
 });

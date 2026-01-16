@@ -18,8 +18,11 @@ export default function Home() {
 
 	useEffect(() => {
 		document.documentElement.style.setProperty('--hue-color', String(GlobalJson.color));
-		document.documentElement.style.setProperty('--isDarkMode', String(GlobalJson.darkMode));
 		document.documentElement.style.setProperty('--blackWhite-mode', String(GlobalJson.blackWhite));
+
+		document.documentElement.style.setProperty('--isDarkMode', String(GlobalJson.darkMode));
+		document.documentElement.classList.toggle('dark', GlobalJson.darkMode === 1);
+		document.documentElement.classList.toggle('light', GlobalJson.darkMode === 0);
 	}, [GlobalJson]);
 
 	return (

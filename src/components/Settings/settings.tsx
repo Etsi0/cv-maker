@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { ButtonHTMLAttributes, Dispatch, SetStateAction, useState } from 'react';
-import { cn } from '@/lib/util';
+import { cn, tryCatch } from '@/lib/util';
 import { Input } from '../ui/input';
 
 import GlobalSettings from '@/components/Settings/globalSettings';
@@ -33,7 +33,7 @@ function TabBtn({ str, currentTab, setCurrentTab, ...props }: TTabBtn) {
 			className={cn(
 				'font-semibold text-sm text-text-600 bg-body-100 p-3 border border-body-200 rounded-md',
 				currentTab !== str && 'cursor-pointer',
-				currentTab === str && 'bg-primary-500 text-primary-50 border-primary-400'
+				currentTab === str && 'bg-primary-500 text-primary-50 border-primary-400 dark:border-primary-600'
 			)}
 			disabled={currentTab === str}
 			onClick={() => setCurrentTab(str)}
@@ -59,15 +59,16 @@ export default function Settings() {
 	const { MainSectionJson, setMainSectionJson } = useMainSectionJsonContext();
 
 	function setSettings(Json: TSettings) {
-		try {
+		const [error] = tryCatch(() => {
 			setGlobalJson(Json.Global);
 			setHeaderJson(migrateHeader(Json.Header));
 			setSidebarJson(migrateSidebar(Json.Sidebar));
 			setMainSectionJson(migrateMainSection(Json.MainSection));
-		} catch (error) {
-			console.error('Error importing file:', error);
-			alert(error instanceof Error ? error.message : 'Invalid file structure. Please check that the file has the correct format.');
-			throw error; // Re-throw to ensure the error is not silently swallowed
+		});
+
+		if (error) {
+			alert(error.message);
+			window.location.reload();
 		}
 	}
 
