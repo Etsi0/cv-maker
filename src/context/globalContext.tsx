@@ -13,7 +13,7 @@ type TGlobalState = {
 };
 
 const startData: TGlobal = {
-	color: 277.12,
+	color: 277,
 	blackWhite: 0,
 	darkMode: 0,
 	pages: 1,
