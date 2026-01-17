@@ -69,13 +69,13 @@
 			Font
 			startValue + (endValue - startValue) * (((index - 1) / (totalNumber - 1)) ^ 1.5)
 		==================================================*/
-		--font-size-1: 1rem;
-		--font-size-2: 1.1360827635rem;
-		--font-size-3: 1.3849001795rem;
-		--font-size-4: 1.7071067812rem;
-		--font-size-5: 2.0886621079rem;
-		--font-size-6: 2.5214515486rem;
-		--font-size-7: 3rem;
+		--font-size-1: 0.875rem;
+		--font-size-2: 1.0110827635rem;
+		--font-size-3: 1.2599001795rem;
+		--font-size-4: 1.5821067812rem;
+		--font-size-5: 1.9636621079rem;
+		--font-size-6: 2.3964515486rem;
+		--font-size-7: 2.875rem;
 
 		/*==================================================
 			Body colors
