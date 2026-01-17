@@ -83,11 +83,12 @@ export function markNewsAsSeen(date: string): void {
 }
 
 /**
- * Compare news items with latest seen date and return unseen items
- * New users (first visit today) won't see news until at least the next day
+ * Returns unseen news items that are newer than the latest seen news date
+ * If no news has been seen, falls back to comparing with the welcome date
+ * Returns empty array if user welcomed today (same day as first visit)
  * Assumes newsItems is sorted with latest news first (index 0) and oldest last
  * @param newsItems - Array of news items from news.json (sorted: latest first, oldest last)
- * @returns Array of unseen news items
+ * @returns Array of unseen news items that are newer than the latest seen date (or welcome date if none seen)
  */
 export function getUnseenNews(newsItems: NewsItem[]): NewsItem[] {
 	if (typeof window === 'undefined') {
@@ -109,15 +110,12 @@ export function getUnseenNews(newsItems: NewsItem[]): NewsItem[] {
 	}
 
 	const latestSeenDate = getLatestSeenNewsDate();
-	if (!latestSeenDate) {
-		return newsItems;
+	const latestSeen = new Date(latestSeenDate ?? welcomeDate);
+	if (!latestSeen) {
+		return [];
 	}
 
-	// Convert latest seen date to Date object for comparison
-	const latestSeen = new Date(latestSeenDate);
 
-	// Since news is sorted with latest first, we can stop as soon as we find an item
-	// that is older than or equal to the latest seen date
 	const unseen: NewsItem[] = [];
 	for (const item of newsItems) {
 		const itemDate = new Date(item.date + 'T00:00:00.000Z');
