@@ -179,7 +179,7 @@ export default function Paper() {
 	const [isGrayscale, setIsGrayscale] = useState<boolean>(false);
 
 	return (
-		<div className={cn('paper relative flex h-[calc(297mm*var(--pages))] w-[210mm] flex-col items-center gap-2 bg-body-50 p-8', isGrayscale && 'saturate-0')}>
+		<div className={cn('paper overflow-hidden relative flex h-[calc(297mm*var(--pages))] w-[210mm] flex-col items-center gap-2 bg-body-50 p-8', isGrayscale && 'saturate-0')}>
 			<div className='absolute left-4 top-3 flex justify-start gap-1 print:hidden'>
 				<Label className='shrink-0' htmlFor='grayScaleSim'>
 					Simulate Grayscale
@@ -191,7 +191,7 @@ export default function Paper() {
 				<SidebarSection />
 				<MainSectionContent />
 			</div>
-			<CreditLink />
+			<CreditLink className='absolute bottom-8 left-1/2 -translate-x-1/2' />
 		</div>
 	);
 }

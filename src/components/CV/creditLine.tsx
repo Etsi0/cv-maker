@@ -1,6 +1,6 @@
-export function CreditLink() {
+export function CreditLink({ className }: { className?: string }) {
 	return (
-		<span>
+		<span className={className}>
 			Created using{' '}
 			<a className='underline' href='https://github.com/Etsi0/cv_maker'>
 				CV Maker
