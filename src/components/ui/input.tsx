@@ -11,7 +11,7 @@ export function Input({ className, ...props }: TInput) {
 		<input
 			className={cn(
 				`${baseFormInput} accent-primary-500`,
-				'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+				'file:border-0 file:bg-transparent file:font-medium',
 				disabledFormInput,
 				focusVisibleOutline,
 				className,

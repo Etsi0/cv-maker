@@ -31,7 +31,7 @@ function TabBtn({ str, currentTab, setCurrentTab, ...props }: TTabBtn) {
 	return (
 		<button
 			className={cn(
-				'font-semibold text-sm text-text-600 bg-body-100 p-3 border border-body-200 rounded-md',
+				'font-semibold text-text-600 bg-body-100 px-3 py-2 border border-body-200 rounded-md',
 				currentTab !== str && 'cursor-pointer',
 				currentTab === str && 'bg-primary-500 text-primary-50 border-primary-400 dark:border-primary-600'
 			)}

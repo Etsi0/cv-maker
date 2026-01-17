@@ -353,7 +353,7 @@ const SidebarSection = memo(function SidebarSection({
 				<Label>
 					Title
 					<Input
-						className='text-center text-base font-semibold'
+						className='text-center font-semibold'
 						value={localTitle}
 						onChange={(event) => setLocalTitle(event.target.value)}
 					/>

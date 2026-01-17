@@ -7,7 +7,7 @@ export const whenHoveringButton = 'hover:opacity-85 hover:active:opacity-50';
 export const INPUT_DEBOUNCE_DELAY = 500;
 
 // Form input base styles
-export const baseFormInput = 'h-10 w-full px-3 py-2 border border-body-200 bg-body-100 rounded-md text-sm';
+export const baseFormInput = 'h-10 w-full px-3 py-2 border border-body-200 bg-body-100 rounded-md';
 export const formInputWithCursor = 'cursor-pointer ' + baseFormInput;
 
 // Focus styles
@@ -18,7 +18,7 @@ export const disabledFormInput = 'disabled:cursor-not-allowed disabled:opacity-5
 export const disabledState = 'cursor-not-allowed opacity-50';
 
 // Button styles
-export const buttonBase = 'cursor-pointer bg-body-100 w-full h-10 px-3 py-2 border border-body-200 rounded-md';
+export const buttonBase = 'cursor-pointer bg-body-100 text-xs w-full h-10 px-3 py-2 border border-body-200 rounded-md';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
