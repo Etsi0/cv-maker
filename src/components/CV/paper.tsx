@@ -105,7 +105,7 @@ const MainCard = memo(function MainCard({ title, subTitle, text }: TAchievementD
 		<div
 			className={cn(
 				'space-y-1 rounded-md bg-body-50 p-3 shadow-[10px_10px_15px_-3px_rgb(0_0_0/0.1),4px_4px_6px_-4px_rgb(0_0_0/0.1),-10px_-10px_15px_-3px_rgb(255_255_255),-4px_-4px_6px_-4px_rgb(255_255_255)]',
-				GlobalJson.darkMode && 'bg-body-200 shadow-none',
+				GlobalJson.darkMode && 'shadow-none',
 			)}
 		>
 			{(title || subTitle) && (
@@ -179,7 +179,7 @@ export default function Paper() {
 	const [isGrayscale, setIsGrayscale] = useState<boolean>(false);
 
 	return (
-		<div className={cn('paper relative flex h-[calc(297mm*2)] w-[210mm] flex-col items-center gap-2 bg-body-50 p-8', isGrayscale && 'saturate-0')}>
+		<div className={cn('paper relative flex h-[calc(297mm*var(--pages))] w-[210mm] flex-col items-center gap-2 bg-body-50 p-8', isGrayscale && 'saturate-0')}>
 			<div className='absolute left-4 top-3 flex justify-start gap-1 print:hidden'>
 				<Label className='shrink-0' htmlFor='grayScaleSim'>
 					Simulate Grayscale

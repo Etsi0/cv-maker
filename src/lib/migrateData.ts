@@ -26,20 +26,23 @@ function migrateGlobal_20260101(global: unknown): TGlobal {
 	const blackWhite = typeof globalObj.blackWhite === 'boolean' ? (globalObj.blackWhite ? 1 : 0) : (globalObj.blackWhite === 1 ? 1 : 0);
 	const darkMode = typeof globalObj.darkMode === 'boolean' ? (globalObj.darkMode ? 1 : 0) : (globalObj.darkMode === 1 ? 1 : 0);
 
+	const pages = typeof globalObj.pages === 'number' ? globalObj.pages : 1;
+
 	return {
 		color: globalObj.color,
 		blackWhite: blackWhite as 1 | 0,
 		darkMode: darkMode as 1 | 0,
+		pages,
 	};
 }
 
 export function migrateGlobal(global: unknown): TGlobal {
 	const [error, data] = tryCatch(() => migrateGlobal_20260101(global));
-	if (!error) {
-		return data;
+	if (error) {
+		throw error;
 	}
 
-	throw error;
+	return data;
 }
 
 
@@ -94,11 +97,11 @@ function migrateHeader_20260101(header: unknown): THeader {
 
 export function migrateHeader(header: unknown): THeader {
 	const [error, data] = tryCatch(() => migrateHeader_20260101(header));
-	if (!error) {
-		return data;
+	if (error) {
+		throw error;
 	}
 
-	throw error;
+	return data;
 }
 
 // Sidebar migrations
@@ -240,11 +243,11 @@ function migrateSidebar_20260101(sidebar: unknown): TSidebar[] {
 
 export function migrateSidebar(sidebar: unknown): TSidebar[] {
 	const [error, data] = tryCatch(() => migrateSidebar_20260101(sidebar));
-	if (!error) {
-		return data;
+	if (error) {
+		throw error;
 	}
 
-	throw error;
+	return data;
 }
 
 // MainSection migrations
@@ -332,9 +335,9 @@ function migrateMainSection_20260101(sections: unknown): TMainSection[] {
 
 export function migrateMainSection(sections: unknown): TMainSection[] {
 	const [error, data] = tryCatch(() => migrateMainSection_20260101(sections));
-	if (!error) {
-		return data;
+	if (error) {
+		throw error;
 	}
 
-	throw error;
+	return data;
 }

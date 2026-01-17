@@ -5,6 +5,7 @@ export type TGlobal = {
 	color: number;
 	blackWhite: 1 | 0;
 	darkMode: 1 | 0;
+	pages: number;
 };
 type TGlobalState = {
 	GlobalJson: TGlobal;
@@ -15,6 +16,7 @@ const startData: TGlobal = {
 	color: 277.12,
 	blackWhite: 0,
 	darkMode: 0,
+	pages: 1,
 };
 
 export const GlobalJsonContext = createContext<TGlobalState | null>(null);

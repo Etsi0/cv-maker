@@ -61,6 +61,62 @@ function ColorHueInput({ value, onChange }: { value: number; onChange: (value: s
 	);
 }
 
+function PagesInput({ value, onChange }: { value: number; onChange: (value: string) => void }) {
+	const [localValue, setLocalValue] = useState(String(value));
+	const isFocusedRef = useRef(false);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const onChangeRef = useRef(onChange);
+
+	// Keep the ref updated with the latest onChange
+	useEffect(() => {
+		onChangeRef.current = onChange;
+	}, [onChange]);
+
+	useEffect(() => {
+		if (!isFocusedRef.current) {
+			setLocalValue(String(value));
+		}
+	}, [value]);
+
+	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			onChangeRef.current(localValue);
+		}, INPUT_DEBOUNCE_DELAY);
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [localValue]);
+
+	const handleFocus = useCallback((isFocused: boolean) => {
+		isFocusedRef.current = isFocused;
+		if (isFocused) return;
+		onChangeRef.current(localValue);
+	}, [localValue]);
+
+	return (
+		<Label>
+			Pages
+			<Input
+				inputMode='numeric'
+				onBlur={() => handleFocus(false)}
+				onChange={(event) => setLocalValue(event.target.value)}
+				onFocus={() => handleFocus(true)}
+				title='Enter a number between 1 and 10'
+				type='string'
+				min={1}
+				max={10}
+				value={localValue}
+			/>
+		</Label>
+	);
+}
+
 export default function GlobalSettings({ className }: { className?: string }) {
 	const { GlobalJson, setGlobalJson } = useGlobalJsonContext();
 
@@ -96,11 +152,22 @@ export default function GlobalSettings({ className }: { className?: string }) {
 		[setGlobalJson],
 	);
 
+	const handlePagesChange = useCallback((value: string) => {
+		const parsedValue = parseFloat(value);
+		const clampedValue = clamp(1, isNaN(parsedValue) ? 1 : parsedValue, 10);
+		setGlobalJson((prev) => {
+			const temp = structuredClone(prev);
+			temp.pages = clampedValue;
+			return temp;
+		});
+	}, [setGlobalJson]);
+
 	if (!GlobalJson) return null;
 
 	return (
 		<div className={cn(className)}>
 			<ColorHueInput value={GlobalJson.color} onChange={handleColorChange} />
+			<PagesInput value={GlobalJson.pages} onChange={handlePagesChange} />
 			<Switch label='Black and white' checked={GlobalJson.blackWhite === 1} onChange={handleBlackWhiteChange} />
 			<Switch label='DarkMode' checked={GlobalJson.darkMode === 1} onChange={handleDarkModeChange} />
 		</div>

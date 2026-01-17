@@ -25,6 +25,8 @@ export default function Home() {
 		document.documentElement.style.setProperty('--isDarkMode', String(GlobalJson.darkMode));
 		document.documentElement.classList.toggle('dark', GlobalJson.darkMode === 1);
 		document.documentElement.classList.toggle('light', GlobalJson.darkMode === 0);
+
+		document.documentElement.style.setProperty('--pages', String(GlobalJson.pages));
 	}, [GlobalJson]);
 
 	return (
