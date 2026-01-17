@@ -30,7 +30,7 @@ export default function RootLayout(props: childrenProp) {
 
 	return (
 		<html lang='en' suppressHydrationWarning className={inter.variable}>
-			<body className='flex min-h-screen items-center justify-center bg-neutral-600 print:bg-body-100'>
+			<body className='flex min-h-screen items-center justify-center bg-neutral-600 print:bg-body-50'>
 				<main className='flex grow'>
 					<GlobalContext>
 						<HeaderContext>
