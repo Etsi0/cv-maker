@@ -2,6 +2,11 @@
 	"items": [
 		{
 			"date": "2026-01-17",
+			"title": "Added pages setting",
+			"description": "You can now set how many pages you want your CV to be."
+		},
+		{
+			"date": "2026-01-16",
 			"title": "Newsletter Added",
 			"description": "We have added a newsletter to keep you updated with the latest news and features."
 		}
