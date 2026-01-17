@@ -269,6 +269,16 @@
 		--font-size-5: 0.8663854382rem;
 		--font-size-6: 0.9375rem;
 		--font-size-7: 1.75rem;
+
+		& h1,
+		& h2 {
+			font-weight: 600;
+		}
+
+		& h3,
+		& h4 {
+			font-weight: 500;
+		}
 	}
 
 	.align-center {
