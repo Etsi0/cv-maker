@@ -2,6 +2,8 @@
 
 import Paper from '@/components/CV/paper';
 import Settings from '@/components/Settings/settings';
+import Welcome from '@/components/Welcome/welcome';
+import Newsletter from '@/components/Newsletter/newsletter';
 
 import { useGlobalJsonContext } from '@/context/globalContext';
 import { useEffect, useState } from 'react';
@@ -28,6 +30,8 @@ export default function Home() {
 	return (
 		isMounted ? (
 			<>
+				<Welcome />
+				<Newsletter />
 				<div className='sticky top-0 h-screen w-2xl overflow-y-scroll bg-body-50 p-3 print:hidden'>
 					<Settings />
 				</div>

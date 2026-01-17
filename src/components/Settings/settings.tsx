@@ -15,7 +15,7 @@ import { TSidebar, useSidebarJsonContext } from '@/context/sidebarContext';
 import { TMainSection, useMainSectionJsonContext } from '@/context/mainSectionContext';
 import { ReadFile } from '@/components/readFile';
 import { Label } from '@/components/ui/label';
-import { migrateHeader, migrateSidebar, migrateMainSection } from '@/lib/migrateData';
+import { migrateGlobal, migrateHeader, migrateSidebar, migrateMainSection } from '@/lib/migrateData';
 import { LinkButton } from '@/components/ui/link';
 import { whenHoveringButton } from '@/lib/util';
 
@@ -60,7 +60,7 @@ export default function Settings() {
 
 	function setSettings(Json: TSettings) {
 		const [error] = tryCatch(() => {
-			setGlobalJson(Json.Global);
+			setGlobalJson(migrateGlobal(Json.Global));
 			setHeaderJson(migrateHeader(Json.Header));
 			setSidebarJson(migrateSidebar(Json.Sidebar));
 			setMainSectionJson(migrateMainSection(Json.MainSection));

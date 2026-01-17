@@ -1,7 +1,47 @@
+import { TGlobal } from '@/context/globalContext';
 import { THeader } from '@/context/headerContext';
 import { TSidebar, TSidebarContent } from '@/context/sidebarContext';
 import { TMainSection } from '@/context/mainSectionContext';
 import { tryCatch } from '@/lib/util';
+
+// Global migrations
+function migrateGlobal_20260101(global: unknown): TGlobal {
+	if (!global || typeof global !== 'object') {
+		throw new Error('Invalid file structure: Global must be an object');
+	}
+	const globalObj = global as Record<string, unknown>;
+
+	if (typeof globalObj.color !== 'number') {
+		throw new Error('Invalid file structure: Global.color must be a number');
+	}
+
+	if (typeof globalObj.blackWhite !== 'number' && typeof globalObj.blackWhite !== 'boolean') {
+		throw new Error('Invalid file structure: Global.blackWhite must be a number or boolean');
+	}
+
+	if (typeof globalObj.darkMode !== 'number' && typeof globalObj.darkMode !== 'boolean') {
+		throw new Error('Invalid file structure: Global.darkMode must be a number or boolean');
+	}
+
+	const blackWhite = typeof globalObj.blackWhite === 'boolean' ? (globalObj.blackWhite ? 1 : 0) : (globalObj.blackWhite === 1 ? 1 : 0);
+	const darkMode = typeof globalObj.darkMode === 'boolean' ? (globalObj.darkMode ? 1 : 0) : (globalObj.darkMode === 1 ? 1 : 0);
+
+	return {
+		color: globalObj.color,
+		blackWhite: blackWhite as 1 | 0,
+		darkMode: darkMode as 1 | 0,
+	};
+}
+
+export function migrateGlobal(global: unknown): TGlobal {
+	const [error, data] = tryCatch(() => migrateGlobal_20260101(global));
+	if (!error) {
+		return data;
+	}
+
+	throw error;
+}
+
 
 // Header migrations
 function migrateHeader_20260101(header: unknown): THeader {
@@ -54,12 +94,11 @@ function migrateHeader_20260101(header: unknown): THeader {
 
 export function migrateHeader(header: unknown): THeader {
 	const [error, data] = tryCatch(() => migrateHeader_20260101(header));
-	if (error) {
-		// If latest migration fails, try previous versions
-		// For now, just re-throw since this is the first migration
-		throw error;
+	if (!error) {
+		return data;
 	}
-	return data;
+
+	throw error;
 }
 
 // Sidebar migrations
@@ -201,12 +240,11 @@ function migrateSidebar_20260101(sidebar: unknown): TSidebar[] {
 
 export function migrateSidebar(sidebar: unknown): TSidebar[] {
 	const [error, data] = tryCatch(() => migrateSidebar_20260101(sidebar));
-	if (error) {
-		// If latest migration fails, try previous versions
-		// For now, just re-throw since this is the first migration
-		throw error;
+	if (!error) {
+		return data;
 	}
-	return data;
+
+	throw error;
 }
 
 // MainSection migrations
@@ -294,10 +332,9 @@ function migrateMainSection_20260101(sections: unknown): TMainSection[] {
 
 export function migrateMainSection(sections: unknown): TMainSection[] {
 	const [error, data] = tryCatch(() => migrateMainSection_20260101(sections));
-	if (error) {
-		// If latest migration fails, try previous versions
-		// For now, just re-throw since this is the first migration
-		throw error;
+	if (!error) {
+		return data;
 	}
-	return data;
+
+	throw error;
 }

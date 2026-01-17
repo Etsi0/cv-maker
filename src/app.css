@@ -69,13 +69,13 @@
 			Font
 			startValue + (endValue - startValue) * (((index - 1) / (totalNumber - 1)) ^ 1.5)
 		==================================================*/
-		--font-size-1: .6875rem;
-		--font-size-2: 0.7098606798rem;
-		--font-size-3: 0.7507455532rem;
-		--font-size-4: 0.8036895004rem;
-		--font-size-5: 0.8663854382rem;
-		--font-size-6: 0.9375rem;
-		--font-size-7: 1.75rem;
+		--font-size-1: 1rem;
+		--font-size-2: 1.1360827635rem;
+		--font-size-3: 1.3849001795rem;
+		--font-size-4: 1.7071067812rem;
+		--font-size-5: 2.0886621079rem;
+		--font-size-6: 2.5214515486rem;
+		--font-size-7: 3rem;
 
 		/*==================================================
 			Body colors
@@ -202,6 +202,7 @@
 	}
 
 	body,
+	.paper,
 	dialog > * {
 		color: var(--color-text-700);
 		font-family: "Inter", sans-serif;
@@ -258,6 +259,16 @@
 
 	.dark a {
 		color: var(--color-primary-400);
+	}
+
+	.paper {
+		--font-size-1: .6875rem;
+		--font-size-2: 0.7098606798rem;
+		--font-size-3: 0.7507455532rem;
+		--font-size-4: 0.8036895004rem;
+		--font-size-5: 0.8663854382rem;
+		--font-size-6: 0.9375rem;
+		--font-size-7: 1.75rem;
 	}
 
 	.align-center {
